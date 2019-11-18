@@ -169,14 +169,15 @@ def train():
       errG.backward()
       D_G_z2 = output.mean().item()
       optimizerG.step()
-      print(f"Epoch->[{epoch + 1:3d}/50] "
-            f"Progress->{i / len(dataloader) * 100:4.2f}% "
-            f"Loss_D: {errD.item():.4f} "
-            f"Loss_G: {errG.item():.4f} "
-            f"D(x): {D_x:.4f} "
-            f"D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}")
+      if i % 400 == 0:
+        print(f"Epoch->[{epoch + 1:3d}/50] "
+              f"Progress->{i / len(dataloader) * 100:4.2f}% "
+              f"Loss_D: {errD.item():.4f} "
+              f"Loss_G: {errG.item():.4f} "
+              f"D(x): {D_x:.4f} "
+              f"D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}")
 
-      if i % 100 == 0:
+      if i % 400 == 0:
         vutils.save_image(real_data, f"{opt.out_images}/real_samples.png", normalize=True)
         with torch.no_grad():
           fake = netG(fixed_noise).detach().cpu()
