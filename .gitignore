@@ -126,3 +126,6 @@ datasets/faces
 
 # generate imgs folder
 unknown/
+
+# Model file
+checkpoints/
