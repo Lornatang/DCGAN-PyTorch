@@ -129,3 +129,6 @@ unknown/
 
 # Model file
 checkpoints/
+
+# API file
+static/
