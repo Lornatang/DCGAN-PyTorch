@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DCGAN!</title>
+    <link rel="stylesheet" href="/static/commons.css">
+    <style>
+        label {
+            text-align: right;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<form action="/index/" method="post">
+    <h3>点击下面相关链接进入</h3>
+    <p>
+        点击这里---> <a href="http://127.0.0.1:8888/api/dcgan/" target="_blank">随机生成动漫妹子(alpha version)</a><br><br>
+    </p>
+    {% csrf_token %}
+</form>
+
+
+</body>
+</html>

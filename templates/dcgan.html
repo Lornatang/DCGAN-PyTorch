@@ -1,0 +1,41 @@
+<!DOCTYPE html >
+<html lang = "en" >
+<head >
+     <meta charset = "UTF-8" >
+    <title>随机生成动漫妹子</title>
+    <script type="text/javascript">
+        function ProcessFile() {
+            var file = document.getElementById('file').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var txt = event.target.result;
+
+                    var img = document.createElement("img");
+                    img.src = txt;
+                    document.getElementById("result").appendChild(img);
+                };
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function contentLoaded() {
+            document.getElementById('file').addEventListener('change',
+                ProcessFile, false);
+        }
+
+        window.addEventListener("DOMContentLoaded", contentLoaded, false);
+    </script>
+</head>
+<body>
+    <form action="/api/dcgan/" method="post" enctype="multipart/form-data">
+        <P>
+        <h4>  请点击以下按钮随机生成动漫妹子头像，(可无限次生成哦~):</h4>
+            <input type="submit" value="生成"><br>
+
+         <h5>{{ message }}</h5>
+        <h4> 这是生成样本：</h4> <br>
+        <img src="/static/cartoon_sister.png" alt="">
+    </form>
+</body>
+</html>
