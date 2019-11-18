@@ -1,3 +1,4 @@
+djangorestframework
 imageio
 IPython
 numpy
