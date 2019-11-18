@@ -33,6 +33,8 @@ import torchvision.utils as vutils
 from model import Discriminator
 from model import Generator
 
+from utils.utils import generate
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataroot', type=str, default='./datasets', help='path to datasets')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
@@ -192,6 +194,6 @@ if __name__ == '__main__':
   if opt.phase == 'train':
     train()
   elif opt.phase == 'generate':
-    pass
+    generate()
   else:
     print(opt)
