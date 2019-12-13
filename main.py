@@ -29,6 +29,7 @@ import torch.utils.data
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
+import torchsummary
 
 from model import Discriminator
 from model import Generator
@@ -38,10 +39,14 @@ from utils.utils import generate
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataroot', type=str, default='./datasets', help='path to datasets')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
+parser.add_argument('--batch_size', type=int, default=64, help='inputs batch size')
+parser.add_argument('--img_size', type=int, default=96, help='the height / width of the inputs image to network')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for adam. default=0.999')
+parser.add_argument('--epochs', type=int, default=200, help="Train loop")
 parser.add_argument('--out_images', default='./imgs', help='folder to output images')
+parser.add_argument('--checkpoint_dir', default='./checkpoints', help='folder to output checkpoints')
 parser.add_argument('--manualSeed', type=int, help='manual seed')
 parser.add_argument('--phase', type=str, default='train', help='model mode. default=`train`, option=`generate`')
 
@@ -59,9 +64,9 @@ torch.manual_seed(opt.manualSeed)
 
 cudnn.benchmark = True
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-fixed_noise = torch.randn(64, 100, 1, 1, device=device)
+fixed_noise = torch.randn(opt.batch_size, 100, 1, 1, device=device)
 
 
 def train():
@@ -76,13 +81,13 @@ def train():
   ################################################
   dataset = dset.ImageFolder(root=opt.dataroot,
                              transform=transforms.Compose([
-                               transforms.Resize(96),
+                               transforms.Resize(opt.img_size),
                                transforms.ToTensor(),
                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                              ]))
 
   assert dataset
-  dataloader = torch.utils.data.DataLoader(dataset, batch_size=64,
+  dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batch_size,
                                            shuffle=True, num_workers=int(opt.workers))
 
   ################################################
@@ -92,27 +97,27 @@ def train():
     netG = torch.nn.DataParallel(Generator())
   else:
     netG = Generator()
-  if os.path.exists("./checkpoints/G.pth"):
-    netG.load_state_dict(torch.load("./checkpoints/G.pth", map_location=lambda storage, loc: storage))
+  if os.path.exists(f"{opt.checkpoint_dir}/G.pth"):
+    netG.load_state_dict(torch.load(f"{opt.checkpoint_dir}/G.pth", map_location=lambda storage, loc: storage))
 
   if torch.cuda.device_count() > 1:
     netD = torch.nn.DataParallel(Discriminator())
   else:
     netD = Discriminator()
-  if os.path.exists("./checkpoints/D.pth"):
-    netD.load_state_dict(torch.load("./checkpoints/D.pth", map_location=lambda storage, loc: storage))
+  if os.path.exists(f"{opt.checkpoint_dir}/D.pth"):
+    netD.load_state_dict(torch.load(f"{opt.checkpoint_dir}/D.pth", map_location=lambda storage, loc: storage))
 
   netG.train()
   netG.to(device)
   netD.train()
   netD.to(device)
-  print(netG)
-  print(netD)
+  torchsummary.summary(netG, (100, 96, 96))
+  torchsummary.summary(netD, (3, 96, 96))
 
   ################################################
   #           Binary Cross Entropy
   ################################################
-  criterion = nn.BCEWithLogitsLoss()
+  criterion = nn.BCEWithLogitsLoss().to(device)
 
   ################################################
   #            Use Adam optimizer
@@ -124,16 +129,13 @@ def train():
   #               print args
   ################################################
   print("########################################")
-  print(f"train dataset path: {opt.dataroot}")
+  print(f"train datasets path: {opt.dataroot}")
   print(f"work thread: {opt.workers}")
-  print(f"batch size: 64")
-  print(f"image size: 96")
-  print(f"Epochs: 200")
-  print(f"Noise size: 100")
+  print(f"batch size:{opt.batch_size}")
+  print(f"Epochs: {opt.epochs}")
   print("########################################")
-  print(f"loading pretrain model successful!\n")
   print("Starting trainning!")
-  for epoch in range(200):
+  for epoch in range(opt.epochs):
     for i, data in enumerate(dataloader):
       ##############################################
       # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -158,7 +160,6 @@ def train():
       output = netD(fake.detach()).view(-1)
       errD_fake = criterion(output, fake_label)
       errD_fake.backward()
-      D_G_z1 = output.mean().item()
       errD = errD_real + errD_fake
       optimizerD.step()
 
@@ -169,25 +170,23 @@ def train():
       output = netD(fake).view(-1)
       errG = criterion(output, real_label)
       errG.backward()
-      D_G_z2 = output.mean().item()
       optimizerG.step()
-      if i % 400 == 0:
-        print(f"Epoch->[{epoch + 1:3d}/50] "
+      if i % 20 == 0:
+        print(f"Epoch->[{epoch + 1:3d}/{opt.epochs}] "
               f"Progress->{i / len(dataloader) * 100:4.2f}% "
               f"Loss_D: {errD.item():.4f} "
               f"Loss_G: {errG.item():.4f} "
-              f"D(x): {D_x:.4f} "
-              f"D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}")
+              f"D(x): {D_x:.4f} ", end="\r")
 
       if i % 400 == 0:
         vutils.save_image(real_data, f"{opt.out_images}/real_samples.png", normalize=True)
         with torch.no_grad():
-          fake = netG(fixed_noise).detach().cpu()
+          fake = netG(fixed_noise).detach()
         vutils.save_image(fake, f"{opt.out_images}/fake_samples_epoch_{epoch + 1}.png", normalize=True)
 
     # do checkpointing
-    torch.save(netG.state_dict(), f"{opt.out_folder}/G.pth")
-    torch.save(netD.state_dict(), f"{opt.out_folder}/D.pth")
+    torch.save(netG.state_dict(), f"{opt.checkpoint_dir}/G.pth")
+    torch.save(netD.state_dict(), f"{opt.checkpoint_dir}/D.pth")
 
 
 if __name__ == '__main__':
