@@ -34,9 +34,9 @@ def weights_init(m):
 
 
 class Generator(nn.Module):
-  def __init__(self):
+  def __init__(self, ngpu):
     super(Generator, self).__init__()
-
+    self.ngpu = ngpu
     self.main = nn.Sequential(
       # inputs is Z, going into a convolution
       nn.ConvTranspose2d(100, 64 * 8, 4, 1, 0, bias=False),
@@ -67,7 +67,7 @@ class Generator(nn.Module):
     Returns:
       forwarded data.
     """
-    if torch.cuda.is_available():
+    if torch.cuda.is_available() and self.ngpu > 1:
       outputs = nn.parallel.data_parallel(self.main, inputs)
     else:
       outputs = self.main(inputs)
@@ -75,9 +75,9 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-  def __init__(self):
+  def __init__(self, ngpu):
     super(Discriminator, self).__init__()
-
+    self.ngpu = ngpu
     self.main = nn.Sequential(
       # inputs is (nc) x 96 x 96
       nn.Conv2d(3, 64, 5, 3, 1, bias=False),
@@ -106,8 +106,8 @@ class Discriminator(nn.Module):
     Returns:
       forwarded data.
     """
-    if torch.cuda.is_available():
+    if torch.cuda.is_available() and self.ngpu > 1:
       outputs = nn.parallel.data_parallel(self.main, inputs)
     else:
       outputs = self.main(inputs)
-    return outputs
+    return outputs.view(-1, 1).squeeze(1)

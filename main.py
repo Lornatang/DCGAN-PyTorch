@@ -33,19 +33,21 @@ import torchsummary
 
 from model import Discriminator
 from model import Generator
-
-from utils.utils import generate
+from model import weights_init
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataroot', type=str, default='./datasets', help='path to datasets')
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
+parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
 parser.add_argument('--batch_size', type=int, default=64, help='inputs batch size')
 parser.add_argument('--img_size', type=int, default=96, help='the height / width of the inputs image to network')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for adam. default=0.999')
 parser.add_argument('--epochs', type=int, default=200, help="Train loop")
-parser.add_argument('--out_images', default='./imgs', help='folder to output images')
+parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
+parser.add_argument('--netG', default='', help="path to netG (to continue training)")
+parser.add_argument('--netD', default='', help="path to netD (to continue training)")
+parser.add_argument('--outf', default='./imgs', help='folder to output images')
 parser.add_argument('--checkpoint_dir', default='./checkpoints', help='folder to output checkpoints')
 parser.add_argument('--manualSeed', type=int, help='manual seed')
 parser.add_argument('--phase', type=str, default='train', help='model mode. default=`train`, option=`generate`')
@@ -53,7 +55,7 @@ parser.add_argument('--phase', type=str, default='train', help='model mode. defa
 opt = parser.parse_args()
 
 try:
-  os.makedirs(opt.out_images)
+  os.makedirs(opt.outf)
 except OSError:
   pass
 
@@ -65,6 +67,7 @@ torch.manual_seed(opt.manualSeed)
 cudnn.benchmark = True
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+ngpu = int(opt.ngpu)
 
 fixed_noise = torch.randn(opt.batch_size, 100, 1, 1, device=device)
 
@@ -73,7 +76,7 @@ def train():
   """ train model
   """
   try:
-    os.makedirs("./checkpoints")
+    os.makedirs(f"{opt.checkpoint_dir}")
   except OSError:
     pass
   ################################################
@@ -93,31 +96,22 @@ def train():
   ################################################
   #               load model
   ################################################
-  if torch.cuda.device_count() > 1:
-    netG = torch.nn.DataParallel(Generator())
-  else:
-    netG = Generator()
-  if os.path.exists(f"{opt.checkpoint_dir}/G.pth"):
-    netG.load_state_dict(torch.load(f"{opt.checkpoint_dir}/G.pth", map_location=lambda storage, loc: storage))
+  netG = Generator(ngpu).to(device)
+  netG.apply(weights_init)
+  if opt.netG != "":
+    netG.load_state_dict(torch.load(opt.netG))
+  print(netG)
 
-  if torch.cuda.device_count() > 1:
-    netD = torch.nn.DataParallel(Discriminator())
-  else:
-    netD = Discriminator()
-  if os.path.exists(f"{opt.checkpoint_dir}/D.pth"):
-    netD.load_state_dict(torch.load(f"{opt.checkpoint_dir}/D.pth", map_location=lambda storage, loc: storage))
-
-  netG.train()
-  netG.to(device)
-  netD.train()
-  netD.to(device)
-  torchsummary.summary(netG, (100, 96, 96))
-  torchsummary.summary(netD, (3, 96, 96))
+  netD = Discriminator(ngpu).to(device)
+  netD.apply(weights_init)
+  if opt.netD != "":
+    netD.load_state_dict(torch.load(opt.netD))
+  print(netD)
 
   ################################################
   #           Binary Cross Entropy
   ################################################
-  criterion = nn.BCEWithLogitsLoss().to(device)
+  criterion = nn.BCELoss().to(device)
 
   ################################################
   #            Use Adam optimizer
@@ -149,7 +143,7 @@ def train():
       real_label = torch.full((batch_size,), 1, device=device)
       fake_label = torch.full((batch_size,), 0, device=device)
 
-      output = netD(real_data).view(-1)
+      output = netD(real_data)
       errD_real = criterion(output, real_label)
       errD_real.backward()
       D_x = output.mean().item()
@@ -157,7 +151,7 @@ def train():
       # train with fake
       noise = torch.randn(batch_size, 100, 1, 1, device=device)
       fake = netG(noise)
-      output = netD(fake.detach()).view(-1)
+      output = netD(fake.detach())
       errD_fake = criterion(output, fake_label)
       errD_fake.backward()
       errD = errD_real + errD_fake
@@ -167,7 +161,7 @@ def train():
       # (2) Update G network: maximize log(D(G(z)))
       ##############################################
       netG.zero_grad()
-      output = netD(fake).view(-1)
+      output = netD(fake)
       errG = criterion(output, real_label)
       errG.backward()
       optimizerG.step()
@@ -178,16 +172,34 @@ def train():
               f"Loss_G: {errG.item():.4f} "
               f"D(x): {D_x:.4f} ", end="\r")
 
-      if i % 400 == 0:
-        vutils.save_image(real_data, f"{opt.out_images}/real_samples.png", normalize=True)
-        with torch.no_grad():
-          fake = netG(fixed_noise).detach()
-        vutils.save_image(fake, f"{opt.out_images}/fake_samples_epoch_{epoch + 1}.png", normalize=True)
+      if i % 100 == 0:
+        vutils.save_image(real_data, f"{opt.outf}/real_samples.png", normalize=True)
+        fake = netG(fixed_noise)
+        vutils.save_image(fake.detach(), f"{opt.outf}/fake_samples_epoch_{epoch + 1}.png", normalize=True)
 
     # do checkpointing
     torch.save(netG.state_dict(), f"{opt.checkpoint_dir}/G.pth")
     torch.save(netD.state_dict(), f"{opt.checkpoint_dir}/D.pth")
 
+
+
+def generate():
+  """ random generate fake image.
+  """
+  ################################################
+  #               load model
+  ################################################
+  print(f"Load model...\n")
+  netG = Generator(ngpu).to(device)
+  if opt.netG != "":
+    netG.load_state_dict(torch.load(opt.netG))
+  print(f"Load model successful!")
+  with torch.no_grad():
+    for i in range(64):
+      z = torch.randn(1, 100, 1, 1, device=device)
+      fake = netG(z)
+      vutils.save_image(fake.detach(), f"unknown/fake_{i + 1:04d}.png", normalize=True)
+  print("Images have been generated!")
 
 if __name__ == '__main__':
   if opt.phase == 'train':
