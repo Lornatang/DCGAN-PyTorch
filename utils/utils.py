@@ -303,26 +303,3 @@ def verify_str_arg(value, arg=None, valid_values=None, custom_msg=None):
     raise ValueError(msg)
 
   return value
-
-
-def generate():
-  """ random generate fake image.
-  """
-  ################################################
-  #               load model
-  ################################################
-  print(f"Load model...\n")
-  if torch.cuda.device_count() > 1:
-    netG = torch.nn.DataParallel(Generator())
-  else:
-    netG = Generator()
-  netG.to(device)
-  netG.load_state_dict(torch.load("./checkpoints/G.pth", map_location=lambda storage, loc: storage))
-  netG.eval()
-  print(f"Load model successful!")
-  with torch.no_grad():
-    for i in range(64):
-      z = torch.randn(1, 100, 1, 1, device=device)
-      fake = netG(z).detach().cpu()
-      vutils.save_image(fake, f"unknown/fake_{i + 1:04d}.png", normalize=True)
-  print("Images have been generated!")
