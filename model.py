@@ -68,7 +68,7 @@ class Generator(nn.Module):
       forwarded data.
     """
     if torch.cuda.is_available() and self.ngpu > 1:
-      outputs = nn.parallel.data_parallel(self.main, inputs)
+      outputs = nn.parallel.data_parallel(self.main, inputs, range(self.ngpu))
     else:
       outputs = self.main(inputs)
     return outputs
@@ -107,7 +107,7 @@ class Discriminator(nn.Module):
       forwarded data.
     """
     if torch.cuda.is_available() and self.ngpu > 1:
-      outputs = nn.parallel.data_parallel(self.main, inputs)
+      outputs = nn.parallel.data_parallel(self.main, inputs, range(self.ngpu))
     else:
       outputs = self.main(inputs)
     return outputs.view(-1, 1).squeeze(1)
