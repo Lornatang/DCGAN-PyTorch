@@ -39,7 +39,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataroot', type=str, default='./datasets', help='path to datasets')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
 parser.add_argument('--batch_size', type=int, default=64, help='inputs batch size')
-parser.add_argument('--img_size', type=int, default=96, help='the height / width of the inputs image to network')
+parser.add_argument('--img_size', type=int, default=64, help='the height / width of the inputs image to network')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for adam. default=0.999')
@@ -146,7 +146,6 @@ def train():
       output = netD(real_data)
       errD_real = criterion(output, real_label)
       errD_real.backward()
-      D_x = output.mean().item()
 
       # train with fake
       noise = torch.randn(batch_size, 100, 1, 1, device=device)
@@ -169,8 +168,7 @@ def train():
         print(f"Epoch->[{epoch + 1:3d}/{opt.epochs}] "
               f"Progress->{i / len(dataloader) * 100:4.2f}% "
               f"Loss_D: {errD.item():.4f} "
-              f"Loss_G: {errG.item():.4f} "
-              f"D(x): {D_x:.4f} ", end="\r")
+              f"Loss_G: {errG.item():.4f} ", end="\r")
 
       if i % 100 == 0:
         vutils.save_image(real_data, f"{opt.outf}/real_samples.png", normalize=True)
@@ -196,7 +194,7 @@ def generate():
   print(f"Load model successful!")
   with torch.no_grad():
     for i in range(64):
-      z = torch.randn(1, 100, 1, 1, device=device)
+      z = torch.randn(1, opt.nz, 1, 1, device=device)
       fake = netG(z)
       vutils.save_image(fake.detach(), f"unknown/fake_{i + 1:04d}.png", normalize=True)
   print("Images have been generated!")
