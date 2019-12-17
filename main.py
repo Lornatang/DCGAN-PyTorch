@@ -36,10 +36,10 @@ from model import Generator
 from model import weights_init
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataroot', type=str, default='./datasets', help='path to datasets')
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
+parser.add_argument('--dataroot', type=str, default='./datasets/cartoon', help='path to datasets')
+parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
 parser.add_argument('--batch_size', type=int, default=64, help='inputs batch size')
-parser.add_argument('--img_size', type=int, default=64, help='the height / width of the inputs image to network')
+parser.add_argument('--img_size', type=int, default=96, help='the height / width of the inputs image to network')
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for adam. default=0.999')
@@ -167,11 +167,10 @@ def train():
       errG = criterion(output, real_label)
       errG.backward()
       optimizerG.step()
-      if i % 20 == 0:
-        print(f"Epoch->[{epoch + 1:3d}/{opt.epochs}] "
-              f"Progress->{i / len(dataloader) * 100:4.2f}% "
-              f"Loss_D: {errD.item():.4f} "
-              f"Loss_G: {errG.item():.4f} ", end="\r")
+      print(f"Epoch->[{epoch + 1:3d}/{opt.epochs}] "
+            f"Progress->{i / len(dataloader) * 100:4.2f}% "
+            f"Loss_D: {errD.item():.4f} "
+            f"Loss_G: {errG.item():.4f} ", end="\r")
 
       if i % 100 == 0:
         vutils.save_image(real_data, f"{opt.outf}/real_samples.png", normalize=True)
