@@ -96,16 +96,19 @@ def train():
   ################################################
   #               load model
   ################################################
-  netG = Generator(ngpu).to(device)
-  netG.apply(weights_init)
+  if torch.cuda.device_count() > 1:
+    netG = torch.nn.DataParallel(Generator(opt.ngpu))
+    netD = torch.nn.DataParallel(Discriminator(opt.ngpu))
+  else:
+    netG = Generator(opt.ngpu)
+    netD = Discriminator(opt.ngpu)
   if opt.netG != "":
     netG.load_state_dict(torch.load(opt.netG, map_location=lambda storage, loc: storage))
-  print(netG)
-
-  netD = Discriminator(ngpu).to(device)
-  netD.apply(weights_init)
   if opt.netD != "":
     netD.load_state_dict(torch.load(opt.netD, map_location=lambda storage, loc: storage))
+  netD.to(device)
+  netG.to(device)
+  print(netG)
   print(netD)
 
   ################################################
@@ -187,9 +190,12 @@ def generate():
   #               load model
   ################################################
   print(f"Load model...\n")
-  netG = Generator(ngpu).to(device)
-  if opt.netG != "":
-    netG.load_state_dict(torch.load(opt.netG, map_location=lambda storage, loc: storage))
+  if torch.cuda.device_count() > 1:
+    netG = torch.nn.DataParallel(Generator(opt.ngpu)).to(device)
+  else:
+    netG = Generator(opt.ngpu)
+  netG.load_state_dict(torch.load(opt.netG, map_location=lambda storage, loc: storage))
+  netG.to(device)
   print(f"Load model successful!")
   with torch.no_grad():
     for i in range(64):
