@@ -114,8 +114,7 @@ dmypy.json
 .pyre/
 
 # datasets
-datasets/MNIST
-datasets/faces
+datasets/
 
 # IDE file
 .idea
@@ -126,6 +125,7 @@ datasets/faces
 
 # generate imgs folder
 unknown/
+imgs/
 
 # Model file
 checkpoints/
