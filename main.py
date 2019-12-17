@@ -22,14 +22,14 @@ to tell real images apart from fakes.
 import argparse
 import os
 import random
-import torch.nn as nn
+
 import torch.backends.cudnn as cudnn
+import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
-import torchsummary
 
 from model import Discriminator
 from model import Generator
@@ -99,13 +99,13 @@ def train():
   netG = Generator(ngpu).to(device)
   netG.apply(weights_init)
   if opt.netG != "":
-    netG.load_state_dict(torch.load(opt.netG))
+    netG.load_state_dict(torch.load(opt.netG, map_location=lambda storage, loc: storage))
   print(netG)
 
   netD = Discriminator(ngpu).to(device)
   netD.apply(weights_init)
   if opt.netD != "":
-    netD.load_state_dict(torch.load(opt.netD))
+    netD.load_state_dict(torch.load(opt.netD, map_location=lambda storage, loc: storage))
   print(netD)
 
   ################################################
@@ -180,7 +180,6 @@ def train():
     torch.save(netD.state_dict(), f"{opt.checkpoint_dir}/D.pth")
 
 
-
 def generate():
   """ random generate fake image.
   """
@@ -190,7 +189,7 @@ def generate():
   print(f"Load model...\n")
   netG = Generator(ngpu).to(device)
   if opt.netG != "":
-    netG.load_state_dict(torch.load(opt.netG))
+    netG.load_state_dict(torch.load(opt.netG, map_location=lambda storage, loc: storage))
   print(f"Load model successful!")
   with torch.no_grad():
     for i in range(64):
@@ -198,6 +197,7 @@ def generate():
       fake = netG(z)
       vutils.save_image(fake.detach(), f"unknown/fake_{i + 1:04d}.png", normalize=True)
   print("Images have been generated!")
+
 
 if __name__ == '__main__':
   if opt.phase == 'train':
