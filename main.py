@@ -77,6 +77,7 @@ def train():
   """
   try:
     os.makedirs(f"{opt.checkpoint_dir}")
+    os.makedirs("unknown")
   except OSError:
     pass
   ################################################
@@ -198,7 +199,7 @@ def generate():
   print(f"Load model successful!")
   with torch.no_grad():
     for i in range(64):
-      z = torch.randn(1, opt.nz, 1, 1, device=device)
+      z = torch.randn(1, 100, 1, 1, device=device)
       fake = netG(z)
       vutils.save_image(fake.detach(), f"unknown/fake_{i + 1:04d}.png", normalize=True)
   print("Images have been generated!")
