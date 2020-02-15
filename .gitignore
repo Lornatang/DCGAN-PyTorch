@@ -129,3 +129,7 @@ examples/imagenet/data/val
 examples/imagenet/data/labels_map.txt
 research/data
 framework/static
+checkpoints
+example/*.pth
+example/data
+example/imgs
