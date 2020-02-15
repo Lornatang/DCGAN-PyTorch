@@ -99,14 +99,6 @@ class Generator(nn.Module):
       # state size. (nc) x 64 x 64
     )
 
-    # custom weights initialization called on netG and netD
-    for m in self.modules():
-      if isinstance(m, nn.Conv2d):
-        m.weight.data.normal_(0.0, 0.02)
-      elif isinstance(m, nn.BatchNorm2d):
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
-
   def forward(self, inputs):
     outputs = self.main(inputs)
     return outputs
@@ -191,14 +183,6 @@ class Discriminator(nn.Module):
       nn.Conv2d(64 * 8, 1, 4, 1, 0, bias=False),
       nn.Sigmoid()
     )
-
-    # custom weights initialization called on netG and netD
-    for m in self.modules():
-      if isinstance(m, nn.Conv2d):
-        m.weight.data.normal_(0.0, 0.02)
-      elif isinstance(m, nn.BatchNorm2d):
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
 
   def forward(self, inputs):
     outputs = self.main(inputs)

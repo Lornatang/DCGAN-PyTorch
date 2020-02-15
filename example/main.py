@@ -27,9 +27,9 @@ applicability as general image representations.
 """
 
 import argparse
+import hashlib
 import os
 import random
-import hashlib
 import warnings
 
 import torch
@@ -41,12 +41,13 @@ import torch.nn.parallel
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
-import torchvision.utils as vutils
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+import torchvision.utils as vutils
 
 from dcgan_pytorch import Discriminator
 from dcgan_pytorch import Generator
+from dcgan_pytorch import weights_init
 
 parser = argparse.ArgumentParser(description='PyTorch GAN')
 parser.add_argument('--dataroot', type=str, default='./data',
@@ -74,8 +75,8 @@ parser.add_argument('--beta1', type=float, default=0.5,
                     help='beta1 for adam. (Default=0.5)')
 parser.add_argument('--beta2', type=float, default=0.999,
                     help='beta2 for adam. (Default=0.999)')
-parser.add_argument('-p', '--print-freq', default=50, type=int,
-                    metavar='N', help='print frequency (default: 50)')
+parser.add_argument('-p', '--print-freq', default=100, type=int,
+                    metavar='N', help='print frequency (default: 100)')
 parser.add_argument('--netG', default='', type=str, metavar='PATH',
                     help='path to latest generator checkpoint (default: none)')
 parser.add_argument('--netD', default='', type=str, metavar='PATH',
@@ -95,7 +96,7 @@ parser.add_argument('--dist-backend', default='nccl', type=str,
 parser.add_argument('--outf', default='./imgs',
                     help='folder to output images. (default=`./imgs`).')
 parser.add_argument('--seed', default=None, type=int,
-                    help='seed for initializing training. ')
+                    help='seed for initializing training.')
 parser.add_argument('--gpu', default=0, type=int,
                     help='GPU id to use.')
 parser.add_argument('--multiprocessing-distributed', action='store_true',
@@ -227,6 +228,9 @@ def main_worker(gpu, ngpus_per_node, args):
     generator = torch.nn.DataParallel(generator).cuda()
     discriminator = torch.nn.DataParallel(discriminator).cuda()
 
+  generator.apply(weights_init)
+  discriminator.apply(weights_init)
+
   # define loss function (adversarial_loss) and optimizer
   adversarial_loss = nn.BCELoss().cuda(args.gpu)
 
@@ -237,23 +241,18 @@ def main_worker(gpu, ngpus_per_node, args):
   if args.netG:
     if os.path.isfile(args.netG):
       print(f"=> loading checkpoint `{args.netG}`")
-      checkpoint = torch.load(args.netG)
-      compress_model(checkpoint, filename=args.netG)
-      args.start_epoch = checkpoint['epoch']
-      generator.load_state_dict(checkpoint['state_dict'])
-      optimizerG.load_state_dict(checkpoint['optimizer'])
-      print(f"=> loaded checkpoint `{args.netG}` (epoch {checkpoint['epoch']})")
+      state_dict = torch.load(args.netG)
+      generator.load_state_dict(state_dict)
+      compress_model(state_dict, filename=args.netG, model_arch=args.generator_arch)
+      print(f"=> loaded checkpoint `{args.netG}`")
     else:
       print(f"=> no checkpoint found at `{args.netG}`")
   if args.netD:
     if os.path.isfile(args.netD):
       print(f"=> loading checkpoint `{args.netD}`")
-      checkpoint = torch.load(args.netD)
-      compress_model(checkpoint, filename=args.netD)
-      args.start_epoch = checkpoint['epoch']
-      discriminator.load_state_dict(checkpoint['state_dict'])
-      optimizerD.load_state_dict(checkpoint['optimizer'])
-      print(f"=> loaded checkpoint `{args.netD}` (epoch {checkpoint['epoch']})")
+      state_dict = torch.load(args.netD)
+      compress_model(state_dict, filename=args.netD, model_arch=args.discriminator_arch)
+      print(f"=> loaded checkpoint `{args.netD}`")
     else:
       print(f"=> no checkpoint found at '{args.netD}'")
 
@@ -312,19 +311,9 @@ def main_worker(gpu, ngpus_per_node, args):
 
     if not args.multiprocessing_distributed or (args.multiprocessing_distributed
                                                 and args.rank % ngpus_per_node == 0):
-      save_checkpoint({
-        'epoch': epoch + 1,
-        'arch': args.generator_arch,
-        'state_dict': generator.state_dict(),
-        'optimizer': optimizerG.state_dict(),
-      }, filename=args.generator_arch + ".pth")
-
-      save_checkpoint({
-        'epoch': epoch + 1,
-        'arch': args.discriminator_arch,
-        'state_dict': discriminator.state_dict(),
-        'optimizer': optimizerD.state_dict(),
-      }, filename=args.discriminator_arch + ".pth")
+      # do checkpointing
+      torch.save(generator.state_dict(), f"{args.outf}/netG_epoch_{epoch}.pth")
+      torch.save(discriminator.state_dict(), f"{args.outf}/netD_epoch_{epoch}.pth")
 
 
 def train(dataloader, generator, discriminator, adversarial_loss, optimizerG, optimizerD, epoch, args):
@@ -340,8 +329,8 @@ def train(dataloader, generator, discriminator, adversarial_loss, optimizerG, op
     batch_size = real_images.size(0)
 
     # real data label is 1, fake data label is 0.
-    real_label = torch.full((batch_size, ), 1)
-    fake_label = torch.full((batch_size, ), 0)
+    real_label = torch.full((batch_size,), 1)
+    fake_label = torch.full((batch_size,), 0)
     # Sample noise as generator input
     noise = torch.randn(batch_size, 100, 1, 1)
     if args.gpu is not None:
@@ -386,13 +375,13 @@ def train(dataloader, generator, discriminator, adversarial_loss, optimizerG, op
     # Update G
     optimizerG.step()
 
-    if i % args.print_freq == 0:
-      print(f"[{epoch:3d}/{args.epochs}][{i:3d}/{len(dataloader)}]\t"
-            f"Loss_G: {errG.item():.4f}\t"
-            f"Loss_D: {errD.item():.4f}\t"
-            f"D_x: {D_x:.4f}\t"
-            f"D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}")
+    print(f"[{epoch}/{args.epochs}][{i}/{len(dataloader)}] "
+          f"Loss_D: {errD.item():.4f} "
+          f"Loss_G: {errG.item():.4f} "
+          f"D_x: {D_x:.4f} "
+          f"D(G(z)): {D_G_z1:.4f} / {D_G_z2:.4f}")
 
+    if i % args.print_freq == 0:
       vutils.save_image(real_images,
                         f"{args.outf}/real_samples.png",
                         normalize=True)
@@ -418,10 +407,6 @@ def validate(model, args):
   print("The fake image has been generated!")
 
 
-def save_checkpoint(state, filename):
-  torch.save(state, filename)
-
-
 def cal_file_md5(filename):
   """ Calculates the MD5 value of the file
   Args:
@@ -438,14 +423,15 @@ def cal_file_md5(filename):
   return hash_value
 
 
-def compress_model(state, filename):
+def compress_model(state, filename, model_arch):
   model_folder = "../checkpoints"
   try:
     os.makedirs(model_folder)
   except OSError:
     pass
-  new_filename = filename[:-4] + "-" + cal_file_md5(filename)[:8] + ".pth"
-  torch.save(state["state_dict"], os.path.join(model_folder, new_filename))
+
+  new_filename = model_arch + "-" + cal_file_md5(filename)[:8] + ".pth"
+  torch.save(state, os.path.join(model_folder, new_filename))
 
 
 if __name__ == '__main__':
