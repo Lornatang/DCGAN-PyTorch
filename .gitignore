@@ -128,7 +128,10 @@ examples/imagenet/data/test
 examples/imagenet/data/val
 examples/imagenet/data/labels_map.txt
 research/data
-framework/static
+framework/static/mnist
+framework/static/fmnist
+framework/static/cifar
+framework/static/imagenet
 checkpoints
 example/*.pth
 example/data
