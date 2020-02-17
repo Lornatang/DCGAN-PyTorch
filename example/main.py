@@ -251,6 +251,7 @@ def main_worker(gpu, ngpus_per_node, args):
     if os.path.isfile(args.netD):
       print(f"=> loading checkpoint `{args.netD}`")
       state_dict = torch.load(args.netD)
+      discriminator.load_state_dict(state_dict)
       compress_model(state_dict, filename=args.netD, model_arch=args.discriminator_arch)
       print(f"=> loaded checkpoint `{args.netD}`")
     else:
@@ -403,7 +404,7 @@ def validate(model, args):
     if args.gpu is not None:
       noise = noise.cuda(args.gpu, non_blocking=True)
     fake = model(noise)
-    vutils.save_image(fake.detach().cpu(), f"{args.outf}/fake.png", normalize=True)
+    vutils.save_image(fake.detach(), f"{args.outf}/fake.png", normalize=True)
   print("The fake image has been generated!")
 
 

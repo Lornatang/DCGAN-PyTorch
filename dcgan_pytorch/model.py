@@ -34,41 +34,10 @@ class Generator(nn.Module):
     >>> from dcgan_pytorch import Generator
     >>> from dcgan_pytorch import Discriminator
     >>> generator = Generator.from_pretrained("g-mnist")
-    Loaded generator pretrained weights for `g-mnist`
     >>> discriminator = Discriminator.from_pretrained("g-mnist")
-    Loaded discriminator pretrained weights for `d-mnist`
     >>> generator.eval()
-    Generator(
-      (main): Sequential(
-        (0): Linear(in_features=100, out_features=128, bias=True)
-        (1): LeakyReLU(negative_slope=0.2, inplace=True)
-        (2): Linear(in_features=128, out_features=256, bias=True)
-        (3): BatchNorm1d(256, eps=0.8, momentum=0.1, affine=True, track_running_stats=True)
-        (4): LeakyReLU(negative_slope=0.2, inplace=True)
-        (5): Linear(in_features=256, out_features=512, bias=True)
-        (6): BatchNorm1d(512, eps=0.8, momentum=0.1, affine=True, track_running_stats=True)
-        (7): LeakyReLU(negative_slope=0.2, inplace=True)
-        (8): Linear(in_features=512, out_features=1024, bias=True)
-        (9): BatchNorm1d(1024, eps=0.8, momentum=0.1, affine=True, track_running_stats=True)
-        (10): LeakyReLU(negative_slope=0.2, inplace=True)
-        (11): Linear(in_features=1024, out_features=784, bias=True)
-        (12): Tanh()
-      )
-    )
-    >>> discriminator.eval()
-    Discriminator(
-      (main): Sequential(
-        (0): Linear(in_features=784, out_features=512, bias=True)
-        (1): LeakyReLU(negative_slope=0.2, inplace=True)
-        (2): Linear(in_features=512, out_features=256, bias=True)
-        (3): LeakyReLU(negative_slope=0.2, inplace=True)
-        (4): Linear(in_features=256, out_features=1, bias=True)
-        (5): Sigmoid()
-      )
-    )
-    >>> noise = torch.randn(1, 100)
+    >>> noise = torch.randn(1, 100, 1, 1)
     >>> discriminator(generator(noise)).item()
-    0.11109194904565811
   """
 
   def __init__(self, global_params=None):
@@ -140,21 +109,9 @@ class Discriminator(nn.Module):
     >>> import torch
     >>> from dcgan_pytorch import Discriminator
     >>> discriminator = Discriminator.from_pretrained("d-mnist")
-    Loaded discriminator pretrained weights for `d-mnist`
     >>> discriminator.eval()
-    Discriminator(
-      (main): Sequential(
-        (0): Linear(in_features=784, out_features=512, bias=True)
-        (1): LeakyReLU(negative_slope=0.2, inplace=True)
-        (2): Linear(in_features=512, out_features=256, bias=True)
-        (3): LeakyReLU(negative_slope=0.2, inplace=True)
-        (4): Linear(in_features=256, out_features=1, bias=True)
-        (5): Sigmoid()
-      )
-    )
-    >>> noise = torch.randn(1, 784)
+    >>> noise = torch.randn(1, 784, 1, 1)
     >>> discriminator(noise).item()
-    0.00048593798419460654
   """
 
   def __init__(self, global_params=None):
