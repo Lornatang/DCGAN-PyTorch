@@ -23,7 +23,7 @@ from dcgan_pytorch import Generator
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-model = Generator.from_pretrained("g-fmnist")
+model = Generator.from_pretrained("g-cifar")
 model.to(device)
 # switch to evaluate mode
 model.eval()
@@ -49,7 +49,7 @@ def index(request):
   return render(request, "index.html")
 
 
-class FMNIST(APIView):
+class CIFAR(APIView):
   @staticmethod
   def get(request):
     """ Get the image based on the base64 encoding or url address
@@ -71,7 +71,7 @@ class FMNIST(APIView):
       "status_code": 20000,
       "message": None,
       "filename": None}
-    return render(request, "fmnist.html", context)
+    return render(request, "cifar.html", context)
 
   @staticmethod
   def post(request):
@@ -90,7 +90,7 @@ class FMNIST(APIView):
       but instead a base64-bit encoded address
     """
 
-    base_path = "static/fmnist"
+    base_path = "static/cifar"
     filename = str(time.time()) + ".png"
 
     try:
@@ -107,4 +107,4 @@ class FMNIST(APIView):
       "status_code": 20000,
       "message": "The fake image has been generated!",
       "filename": filename}
-    return render(request, "fmnist.html", context)
+    return render(request, "cifar.html", context)

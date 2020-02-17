@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 import os
 import time
 
@@ -20,7 +19,7 @@ import torchvision.utils as vutils
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-from gan_pytorch import Generator
+from dcgan_pytorch import Generator
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -32,17 +31,21 @@ model.eval()
 
 def index(request):
   """Get the image based on the base64 encoding or url address
-          and do the pencil style conversion
+  and do the pencil style conversion
+
   Args:
-      request: Post request in url.
+    request: Post request in url.
       - image_code: 64-bit encoding of images.
       - url:        The URL of the image.
+
   Returns:
-      Base64 bit encoding of the image.
+    Base64 bit encoding of the image.
+
   Notes:
-      Later versions will not return an image's address,
-      but instead a base64-bit encoded address
+    Later versions will not return an image's address,
+    but instead a base64-bit encoded address
   """
+
   return render(request, "index.html")
 
 
@@ -50,16 +53,20 @@ class MNIST(APIView):
   @staticmethod
   def get(request):
     """ Get the image based on the base64 encoding or url address
+
     Args:
-        request: Post request in url.
+      request: Post request in url.
         - image_code: 64-bit encoding of images.
         - url:        The URL of the image.
+
     Returns:
-        Base64 bit encoding of the image.
+      Base64 bit encoding of the image.
+
     Notes:
-        Later versions will not return an image's address,
-        but instead a base64-bit encoded address
+      Later versions will not return an image's address,
+      but instead a base64-bit encoded address
     """
+
     context = {
       "status_code": 20000,
       "message": None,
@@ -69,16 +76,20 @@ class MNIST(APIView):
   @staticmethod
   def post(request):
     """ Get the image based on the base64 encoding or url address
+
     Args:
-        request: Post request in url.
+      request: Post request in url.
         - image_code: 64-bit encoding of images.
         - url:        The URL of the image.
+
     Returns:
-        Base64 bit encoding of the image.
+      Base64 bit encoding of the image.
+
     Notes:
-        Later versions will not return an image's address,
-        but instead a base64-bit encoded address
+      Later versions will not return an image's address,
+      but instead a base64-bit encoded address
     """
+
     base_path = "static/mnist"
     filename = str(time.time()) + ".png"
 
@@ -88,7 +99,7 @@ class MNIST(APIView):
       pass
 
     with torch.no_grad():
-      noise = torch.randn(64, 100, device=device)
+      noise = torch.randn(64, 100, 1, 1, device=device)
       fake = model(noise)
       vutils.save_image(fake.detach().cpu(), os.path.join(base_path, filename), normalize=True)
 

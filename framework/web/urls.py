@@ -11,13 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
-"""
-====================================WARNING====================================
-Do not delete this file unless you know how to refactor it!
-====================================WARNING====================================
-"""
-
+from api import CIFAR
 from api import FMNIST
 from api import MNIST
 from api import index
@@ -28,8 +22,9 @@ from django.urls import path
 
 # noinspection PyInterpreter
 urlpatterns = [
-  url(r'^api/mnist.html', MNIST.as_view(), name="GAN for MNIST"),
-  url(r'^api/fmnist.html', FMNIST.as_view(), name="GAN for Fashion-MNIST"),
+  url(r'^api/mnist.html', MNIST.as_view(), name="DCGAN for MNIST"),
+  url(r'^api/fmnist.html', FMNIST.as_view(), name="DCGAN for Fashion-MNIST"),
+  url(r'^api/cifar.html', CIFAR.as_view(), name="DCGAN for CIFAR"),
   path('', index),
   path('admin/', admin.site.urls),
   url('index/', index, name="index"),
