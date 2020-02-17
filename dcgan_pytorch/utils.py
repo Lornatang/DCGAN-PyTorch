@@ -100,12 +100,12 @@ def get_model_params(model_name):
 
 
 url_maps = {
-  "d-cifar": "https://github.com/changyu98/models/raw/master/pytorch/gan/d-cifar-d90b69d8.pth",
-  "d-fmnist": "https://github.com/changyu98/models/raw/master/pytorch/gan/d-fmnist-46a7c6bc.pth",
-  "d-mnist": "https://github.com/changyu98/models/raw/master/pytorch/gan/d-mnist-71297c87.pth",
-  "g-cifar": "https://github.com/changyu98/models/raw/master/pytorch/gan/g-cifar-84f37fe1.pth",
-  "g-fmnist": "https://github.com/changyu98/models/raw/master/pytorch/gan/g-fmnist-6a6da537.pth",
-  "g-mnist": "https://github.com/changyu98/models/raw/master/pytorch/gan/g-mnist-b55a0fb7.pth",
+  "d-cifar": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/d-cifar-d90b69d8.pth",
+  "d-fmnist": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/d-fmnist-46a7c6bc.pth",
+  "d-mnist": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/d-mnist-71297c87.pth",
+  "g-cifar": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/g-cifar-84f37fe1.pth",
+  "g-fmnist": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/g-fmnist-6a6da537.pth",
+  "g-mnist": "https://github.com/changyu98/models/raw/master/pytorch/dcgan/g-mnist-b55a0fb7.pth",
 }
 
 
