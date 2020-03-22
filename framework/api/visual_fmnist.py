@@ -30,81 +30,82 @@ model.eval()
 
 
 def index(request):
-  """Get the image based on the base64 encoding or url address
-  and do the pencil style conversion
+    """Get the image based on the base64 encoding or url address
+    and do the pencil style conversion
 
-  Args:
-    request: Post request in url.
-      - image_code: 64-bit encoding of images.
-      - url:        The URL of the image.
+    Args:
+      request: Post request in url.
+        - image_code: 64-bit encoding of images.
+        - url:        The URL of the image.
 
-  Returns:
-    Base64 bit encoding of the image.
+    Returns:
+      Base64 bit encoding of the image.
 
-  Notes:
-    Later versions will not return an image's address,
-    but instead a base64-bit encoded address
-  """
+    Notes:
+      Later versions will not return an image's address,
+      but instead a base64-bit encoded address
+    """
 
-  return render(request, "index.html")
+    return render(request, "index.html")
 
 
 class FMNIST(APIView):
-  @staticmethod
-  def get(request):
-    """ Get the image based on the base64 encoding or url address
+    @staticmethod
+    def get(request):
+        """ Get the image based on the base64 encoding or url address
 
-    Args:
-      request: Post request in url.
-        - image_code: 64-bit encoding of images.
-        - url:        The URL of the image.
+        Args:
+          request: Post request in url.
+            - image_code: 64-bit encoding of images.
+            - url:        The URL of the image.
 
-    Returns:
-      Base64 bit encoding of the image.
+        Returns:
+          Base64 bit encoding of the image.
 
-    Notes:
-      Later versions will not return an image's address,
-      but instead a base64-bit encoded address
-    """
+        Notes:
+          Later versions will not return an image's address,
+          but instead a base64-bit encoded address
+        """
 
-    context = {
-      "status_code": 20000,
-      "message": None,
-      "filename": None}
-    return render(request, "fmnist.html", context)
+        context = {
+            "status_code": 20000,
+            "message": None,
+            "filename": None}
+        return render(request, "fmnist.html", context)
 
-  @staticmethod
-  def post(request):
-    """ Get the image based on the base64 encoding or url address
+    @staticmethod
+    def post(request):
+        """ Get the image based on the base64 encoding or url address
 
-    Args:
-      request: Post request in url.
-        - image_code: 64-bit encoding of images.
-        - url:        The URL of the image.
+        Args:
+          request: Post request in url.
+            - image_code: 64-bit encoding of images.
+            - url:        The URL of the image.
 
-    Returns:
-      Base64 bit encoding of the image.
+        Returns:
+          Base64 bit encoding of the image.
 
-    Notes:
-      Later versions will not return an image's address,
-      but instead a base64-bit encoded address
-    """
+        Notes:
+          Later versions will not return an image's address,
+          but instead a base64-bit encoded address
+        """
 
-    base_path = "static/fmnist"
-    filename = str(time.time()) + ".png"
+        base_path = "static/fmnist"
+        filename = str(time.time()) + ".png"
 
-    try:
-      os.makedirs(base_path)
-    except OSError:
-      pass
+        try:
+            os.makedirs(base_path)
+        except OSError:
+            pass
 
-    with torch.no_grad():
-      noise = torch.randn(64, 100, 1, 1, device=device)
-      fake = model(noise)
-      vutils.save_image(fake.detach().cpu(), os.path.join(base_path, filename), normalize=True)
+        with torch.no_grad():
+            noise = torch.randn(64, 100, 1, 1, device=device)
+            fake = model(noise)
+            vutils.save_image(fake.detach().cpu(),
+                              os.path.join(base_path, filename), normalize=True)
 
-    context = {
-      "status_code": 20000,
-      "message": "The fake image has been generated!",
-      "filename": filename}
-    return render(request, "fmnist.html", context)
+        context = {
+            "status_code": 20000,
+            "message": "The fake image has been generated!",
+            "filename": filename}
+        return render(request, "fmnist.html", context)
