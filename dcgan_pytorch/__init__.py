@@ -11,8 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from .model import Discriminator
 from .model import Generator
 from .utils import weights_init
+
+__all__ = [
+    "Discriminator",
+    "Generator",
+    "weights_init"
+]
