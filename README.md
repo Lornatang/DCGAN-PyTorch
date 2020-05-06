@@ -1,35 +1,19 @@
 # DCGAN-PyTorch
 
-### Update (January 29, 2020)
-
-The mnist and fmnist models are now available. Their usage is identical to the other models: 
-```python
-from dcgan_pytorch import Generator
-model = Generator.from_pretrained('g-mnist') 
-```
-
 ### Overview
 This repository contains an op-for-op PyTorch reimplementation of [Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks](http://xxx.itp.ac.cn/pdf/1511.06434).
-
-The goal of this implementation is to be simple, highly extensible, and easy to integrate into your own projects. This implementation is a work in progress -- new features are currently being implemented.  
-
-At the moment, you can easily:  
- * Load pretrained Generate models 
- * Use Generate models for extended dataset
-
-_Upcoming features_: In the next few days, you will be able to:
- * Quickly finetune an Generate on your own dataset
- * Export Generate models for production
 
 ### Table of contents
 1. [About Deep Convolutional Generative Adversarial Networks](#about-deep-convolutional-generative-adversarial-networks)
 2. [Model Description](#model-description)
 3. [Installation](#installation)
-4. [Usage](#usage)
-    * [Load pretrained models](#loading-pretrained-models)
-    * [Example: Extended dataset](#example-extended-dataset)
-    * [Example: Visual](#example-visual)
-5. [Contributing](#contributing) 
+    * [Clone and install requirements](#clone-and-install-requirements)
+    * [Download pretrained weights](#download-pretrained-weights-eg-mnist)
+4. [Test](#test-eg-mnist)
+5. [Train](#train)
+6. [Visual](#Visual)
+7. [Contributing](#contributing) 
+8. [Credit](#credit)
 
 ### About Deep Convolutional Generative Adversarial Networks
 
@@ -43,65 +27,52 @@ We have two networks, G (Generator) and D (Discriminator).The Generator is a net
 
 ### Installation
 
-Install from pypi:
+#### Clone and install requirements
 ```bash
-pip install dcgan_pytorch
+$ git clone https://github.com/Lornatang/DCGAN_PyTorch.git
+$ cd DCGAN_PyTorch/
+$ pip3 install -r requirements.txt
 ```
 
-Install from source:
+#### Download pretrained weights (e.g MNIST)
+
 ```bash
-git clone https://github.com/Lornatang/DCGAN-PyTorch.git
-cd DCGAN-PyTorch
-pip install -e .
-``` 
-
-### Usage
-
-#### Loading pretrained models
-
-Load an Deep-Convolutional-Generative-Adversarial-Networks:
-```python
-from dcgan_pytorch import Generator
-model = Generator.from_name("g-mnist")
+$ cd weights/
+$ bash download_weights.sh <datasets-name> mnist
 ```
 
-Load a pretrained Deep-Convolutional-Generative-Adversarial-Networks:
-```python
-from dcgan_pytorch import Generator
-model = Generator.from_pretrained("g-mnist")
+### Test (e.g MNIST)
+
+Using pre training model to generate pictures.
+
+```bash
+$ python3 test.py mnist --cuda
 ```
 
-#### Example: Extended dataset
+### Train
 
-As mentioned in the example, if you load the pre-trained weights of the MNIST dataset, it will create a new `imgs` directory and generate 64 random images in the `imgs` directory.
-
-```python
-import os
-import torch
-import torchvision.utils as vutils
-from dcgan_pytorch import Generator
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-model = Generator.from_pretrained("g-mnist")
-model.to(device)
-# switch to evaluate mode
-model.eval()
-
-try:
-    os.makedirs("./imgs")
-except OSError:
-    pass
-
-with torch.no_grad():
-    for i in range(64):
-        noise = torch.randn(64, 100, 1, 1, device=device)
-        fake = model(noise)
-        vutils.save_image(fake.detach(), f"./imgs/fake_{i:04d}.png", normalize=True)
-    print("The fake image has been generated!")
+```text
+usage: train.py [-h] [--dataroot DATAROOT] [-j N] [--epochs N]
+                [--image-size IMAGE_SIZE] [-b N] [--lr LR] [--beta1 BETA1]
+                [--beta2 BETA2] [-p N] [--cuda] [--netG PATH] [--netD PATH]
+                [--outf OUTF] [--manualSeed MANUALSEED] [--ngpu NGPU]
+                [--multiprocessing-distributed]
+                name
 ```
 
-#### Example: Visual
+#### Example (e.g MNIST)
+
+```bash
+$ python3 train.py mnist --cuda
+```
+
+If you want to load weights that you've trained before, run the following command.
+
+```bash
+$ python3 train.py mnist --netG weights/mnist/netG_epoch_*.pth --netD weights/mnist/netD_epoch_*.pth --cuda
+```
+
+### Visual
 
 ```text
 cd $REPO$/framework
@@ -116,3 +87,34 @@ Enjoy it.
 If you find a bug, create a GitHub issue, or even better, submit a pull request. Similarly, if you have questions, simply post them as GitHub issues.   
 
 I look forward to seeing what the community does with these models! 
+
+### Credit
+
+#### Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks
+
+_Alec Radford, Luke Metz, Soumith Chintala_ <br>
+
+**Abstract** <br>
+In recent years, supervised learning with convolutional networks (CNNs) 
+has seen huge adoption in computer vision applications. Comparatively, 
+unsupervised learning with CNNs has received less attention. In this work 
+we hope to help bridge the gap between the success of CNNs for supervised 
+learning and unsupervised learning. We introduce a class of CNNs called deep 
+convolutional generative adversarial networks (DCGANs), that have certain 
+architectural constraints, and demonstrate that they are a strong candidate 
+for unsupervised learning. Training on various image datasets, we show convincing 
+evidence that our deep convolutional adversarial pair learns a hierarchy of 
+representations from object parts to scenes in both the generator and discriminator. 
+Additionally, we use the learned features for novel tasks - demonstrating their 
+applicability as general image representations.
+
+[[Paper]](https://arxiv.org/abs/1511.06434)) [[Authors' Implementation]](https://github.com/Newmu/dcgan_code)
+
+```
+@inproceedings{ICLR 2016,
+  title={Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks},
+  author={Alec Radford, Luke Metz, Soumith Chintala},
+  booktitle={Under review as a conference paper at ICLR 2016},
+  year={2016}
+}
+```
