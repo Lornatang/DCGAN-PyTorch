@@ -13,7 +13,7 @@
 # ==============================================================================
 from .visual_cifar import CIFAR
 from .visual_cifar import index
-from .visual_fmnist import FMNIST
-from .visual_fmnist import index
+from .visual_imagenet import IMAGENET
+from .visual_imagenet import index
 from .visual_mnist import MNIST
 from .visual_mnist import index

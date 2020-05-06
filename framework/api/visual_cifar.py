@@ -23,7 +23,8 @@ from dcgan_pytorch import Generator
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-model = Generator.from_pretrained("g-cifar")
+model = Generator()
+model.load_state_dict(torch.load("../../weights/cifar/G.pth"))
 model.to(device)
 # switch to evaluate mode
 model.eval()
@@ -101,8 +102,7 @@ class CIFAR(APIView):
         with torch.no_grad():
             noise = torch.randn(64, 100, 1, 1, device=device)
             fake = model(noise)
-            vutils.save_image(fake.detach().cpu(),
-                              os.path.join(base_path, filename), normalize=True)
+            vutils.save_image(fake.detach(), os.path.join(base_path, filename), normalize=True)
 
         context = {
             "status_code": 20000,
