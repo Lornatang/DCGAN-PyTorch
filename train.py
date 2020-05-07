@@ -67,6 +67,8 @@ parser.add_argument("--beta2", type=float, default=0.999,
 parser.add_argument("-p", "--print-freq", default=100, type=int,
                     metavar="N", help="print frequency (default:100)")
 parser.add_argument("--cuda", action="store_true", help="Enables cuda")
+parser.add_argument("--ngpu", default=1, type=int,
+                    help="GPU id to use. (default:None)")
 parser.add_argument("--netG", default="", type=str, metavar="PATH",
                     help="path to latest generator checkpoint (default: none)")
 parser.add_argument("--netD", default="", type=str, metavar="PATH",
@@ -75,20 +77,13 @@ parser.add_argument("--outf", default="./outputs",
                     help="folder to output images. (default:`./outputs`).")
 parser.add_argument("--manualSeed", type=int,
                     help="Seed for initializing training. (default:none)")
-parser.add_argument("--ngpu", default=1, type=int,
-                    help="GPU id to use. (default:None)")
-parser.add_argument("--multiprocessing-distributed", action="store_true",
-                    help="Use multi-processing distributed training to launch "
-                         "N processes per node, which has N GPUs. This is the "
-                         "fastest way to use PyTorch for either single node or "
-                         "multi node data parallel training")
-
-fixed_noise = torch.randn(64, 100, 1, 1)
 
 valid_dataset_name = ["mnist", "cifar", "imagenet"]
 
 args = parser.parse_args()
 print(args)
+
+fixed_noise = torch.randn(args.batch_size, 100, 1, 1)
 
 try:
     os.makedirs(args.outf)
