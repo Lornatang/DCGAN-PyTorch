@@ -244,7 +244,7 @@ for epoch in range(0, args.epochs):
         optimizer_G.step()
 
         progress_bar.set_description(
-            f"[{epoch}/{args.epochs - 1}][{i}/{len(dataloader) - 1}] "
+            f"[{epoch}/{args.epochs}][{i}/{len(dataloader)}] "
             f"Loss_D: {errD.item():.4f} "
             f"Loss_G: {errG.item():.4f} "
             f"D_x: {D_x:.4f} "
