@@ -38,7 +38,7 @@ $ pip3 install -r requirements.txt
 
 ```bash
 $ cd weights/
-$ bash download_weights.sh <datasets-name> mnist
+$ bash download_weights.sh mnist
 ```
 
 ### Test (e.g MNIST)
