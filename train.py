@@ -53,7 +53,7 @@ parser.add_argument("--epochs", default=25, type=int, metavar="N",
                     help="Number of total epochs to run. (default:25)")
 parser.add_argument("--image-size", type=int, default=64,
                     help="Size of the data crop (squared assumed). (default:64)")
-parser.add_argument("-b", "--batch-size", default=64, type=int,
+parser.add_argument("--batch-size", default=64, type=int,
                     metavar="N",
                     help="mini-batch size (default: 64), this is the total "
                          "batch size of all GPUs on the current node when "
