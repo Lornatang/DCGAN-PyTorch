@@ -60,6 +60,7 @@ class Trainer(object):
                                                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                        ]))
         else:
+            logger.warning("You don't use current dataset. Default use CIFAR10 dataset.")
             dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
                                                    transform=transforms.Compose([
                                                        transforms.Resize(args.image_size),

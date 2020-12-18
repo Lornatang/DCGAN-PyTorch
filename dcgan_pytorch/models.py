@@ -21,8 +21,8 @@ __all__ = [
 ]
 
 model_urls = {
-    "cifar10": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cifar10-8cbb7b63.pth",
-    "cartoon": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cartoon-95e6969f.pth"
+    "cifar10": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cifar10-30241ac8.pth",
+    "cartoon": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cartoon-c65fc503.pth"
 }
 
 

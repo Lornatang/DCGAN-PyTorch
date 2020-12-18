@@ -14,8 +14,8 @@
 import argparse
 import logging
 
-import gan_pytorch.models as models
-from gan_pytorch.utils import create_folder
+import dcgan_pytorch.models as models
+from dcgan_pytorch.utils import create_folder
 from trainer import Trainer
 
 model_names = sorted(name for name in models.__dict__
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # basic parameters
     parser.add_argument("--dataset", type=str, required=True,
                         help="cifar10 | cartoon |.")
-    parser.add_argument("--dataroot", type=str, default="data",
+    parser.add_argument("--dataroot", type=str, default="data", required=True,
                         help="Path to dataset. (default: ``data``).")
     parser.add_argument("-j", "--workers", default=4, type=int, metavar="N",
                         help="Number of data loading workers. (default:4)")
