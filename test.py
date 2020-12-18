@@ -17,9 +17,9 @@ import logging
 import torch
 import torchvision.utils as vutils
 
-import gan_pytorch.models as models
-from gan_pytorch.utils import create_folder
-from gan_pytorch.utils import select_device
+import dcgan_pytorch.models as models
+from dcgan_pytorch.utils import create_folder
+from dcgan_pytorch.utils import select_device
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
