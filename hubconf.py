@@ -17,6 +17,7 @@ Usage:
     import torch
     model = torch.hub.load("Lornatang/DCAN-PyTorch", "mnist", pretrained=True, image_size=28, channels=1)
 """
+import torch
 from torch.hub import load_state_dict_from_url
 
 from dcgan_pytorch.models import Generator
