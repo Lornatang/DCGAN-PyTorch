@@ -15,7 +15,7 @@
 """File for accessing GAN via PyTorch Hub https://pytorch.org/hub/
 Usage:
     import torch
-    model = torch.hub.load("Lornatang/GAN-PyTorch", "mnist", pretrained=True, image_size=28, channels=1)
+    model = torch.hub.load("Lornatang/DCAN-PyTorch", "mnist", pretrained=True, image_size=28, channels=1)
 """
 from torch.hub import load_state_dict_from_url
 
