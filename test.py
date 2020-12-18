@@ -1,4 +1,4 @@
-# Copyright 2020 Lorna Authors. All Rights Reserved.
+# Copyright 2020 Dakewe Biotech Corporation. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
@@ -12,49 +12,59 @@
 # limitations under the License.
 # ==============================================================================
 import argparse
-import random
+import logging
 
-import torch.backends.cudnn as cudnn
-import torch.utils.data.distributed
+import torch
 import torchvision.utils as vutils
 
-from dcgan_pytorch import Generator
+import gan_pytorch.models as models
+from gan_pytorch.utils import create_folder
+from gan_pytorch.utils import select_device
 
-parser = argparse.ArgumentParser(description="PyTorch simple implementation Deep Convolutional GANs")
-parser.add_argument("--nc", default=3, type=int, help="Image channels. (default:3)")
-parser.add_argument("--ngpu", default=1, type=int,
-                    help="GPU id to use. (default:None)")
-parser.add_argument("--netG", default="", type=str, metavar="PATH",
-                    help="path to latest generator checkpoint (default: none)")
-parser.add_argument("--outf", default="./outputs",
-                    help="folder to output images. (default:`./outputs`).")
-parser.add_argument("--manualSeed", type=int,
-                    help="Seed for initializing training. (default:none)")
+model_names = sorted(name for name in models.__dict__
+                     if name.islower() and not name.startswith("__")
+                     and callable(models.__dict__[name]))
 
-args = parser.parse_args()
-print(args)
+logger = logging.getLogger(__name__)
+logging.basicConfig(format="[ %(levelname)s ] %(message)s", level=logging.INFO)
 
-if args.manualSeed is None:
-    args.manualSeed = random.randint(1, 10000)
-print("Random Seed: ", args.manualSeed)
-random.seed(args.manualSeed)
-torch.manual_seed(args.manualSeed)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Research and application of GAN based super resolution "
+                                                 "technology for pathological microscopic images.")
+    parser.add_argument("-a", "--arch", metavar="ARCH", default="cifar10",
+                        choices=model_names,
+                        help="model architecture: " +
+                             " | ".join(model_names) +
+                             " (default: cifar10)")
+    parser.add_argument("-n", "--num-images", type=int, default=64,
+                        help="How many samples are generated at one time. (default: 64).")
+    parser.add_argument("--outf", default="test", type=str, metavar="PATH",
+                        help="The location of the image in the evaluation process. (default: ``test``).")
+    parser.add_argument("--device", default="cpu",
+                        help="device id i.e. `0` or `0,1` or `cpu`. (default: ``cpu``).")
 
-cudnn.benchmark = True
+    args = parser.parse_args()
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("##################################################\n")
+    print("Run Testing Engine.\n")
+    print(args)
 
-noise = torch.randn(64, 100, 1, 1, device=device)
+    create_folder(args.outf)
 
-model = Generator(args.nc).to(device)
+    logger.info("TestEngine:")
+    print("\tAPI version .......... 0.1.0")
+    print("\tBuild ................ 2020.12.18-1454-f636e462")
 
-if int(args.ngpu) > 1:
-    model = torch.nn.DataParallel(model).to(device)
+    logger.info("Creating Testing Engine")
+    device = select_device(args.device)
+    model = torch.hub.load("Lornatang/DCGAN-PyTorch", args.arch, pretrained=True)
+    model = model.to(device)
 
-if args.netG != "":
-    model.load_state_dict(torch.load(args.netG))
+    noise = torch.randn(args.num_images, 100, 1, 1, device=device)
+    with torch.no_grad():
+        generated_images = model(noise)
 
-with torch.no_grad():
-    fake = model(noise)
-    vutils.save_image(fake.detach(), f"{args.outf}/fake.png", normalize=True)
-print("The fake image has been generated!")
+    vutils.save_image(generated_images, f"{args.outf}/test.bmp")
+    print("##################################################\n")
+
+    logger.info("Test completed successfully.\n")

@@ -1,8 +1,0 @@
-djangorestframework
-imageio
-IPython
-numpy
-torch
-torchvision
-pillow
-
