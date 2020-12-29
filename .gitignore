@@ -137,4 +137,5 @@ data/cifar-10-python.tar.gz
 data/cifar-10-batches-py
 
 output
-weights/*.pth
+test
+*.pth
