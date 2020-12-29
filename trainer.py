@@ -45,14 +45,8 @@ class Trainer(object):
 
         logger.info("Load training dataset")
         # Selection of appropriate treatment equipment.
-        if args.dataset == "cifar10":
-            dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
-                                                   transform=transforms.Compose([
-                                                       transforms.Resize((args.image_size, args.image_size)),
-                                                       transforms.ToTensor(),
-                                                       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                                                   ]))
-        elif args.dataset == "cartoon":
+        if args.dataset in ["imagenet", "folder", "lfw"]:
+            # folder dataset
             dataset = torchvision.datasets.ImageFolder(root=args.dataroot,
                                                        transform=transforms.Compose([
                                                            transforms.Resize((args.image_size, args.image_size)),
@@ -60,15 +54,28 @@ class Trainer(object):
                                                            transforms.ToTensor(),
                                                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                        ]))
+        elif args.dataset == "lsun":
+            dataset = torchvision.datasets.LSUN(root=args.dataroot, classes=["church_outdoor_train"],
+                                                transform=transforms.Compose([
+                                                    transforms.Resize((args.image_size, args.image_size)),
+                                                    transforms.CenterCrop(args.image_size),
+                                                    transforms.ToTensor(),
+                                                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                                ]))
+        elif args.dataset == "cifar10":
+            dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
+                                                   transform=transforms.Compose([
+                                                       transforms.Resize((args.image_size, args.image_size)),
+                                                       transforms.ToTensor(),
+                                                       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                                   ]))
         else:
-            logger.warning("You don't use current dataset. Default use CIFAR10 dataset.")
             dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
                                                    transform=transforms.Compose([
                                                        transforms.Resize((args.image_size, args.image_size)),
                                                        transforms.ToTensor(),
                                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                                                    ]))
-
         self.dataloader = torch.utils.data.DataLoader(dataset,
                                                       batch_size=args.batch_size,
                                                       pin_memory=True,
