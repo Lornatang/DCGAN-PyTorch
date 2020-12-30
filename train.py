@@ -72,6 +72,8 @@ if __name__ == "__main__":
                         help="The height / width of the input image to network. (default: 64).")
     parser.add_argument("--lr", type=float, default=0.0002,
                         help="Learning rate. (default:0.0002)")
+    parser.add_argument("--classes", default="church_outdoor",
+                        help="comma separated list of classes for the lsun data set")
     args = parser.parse_args()
 
     print("##################################################\n")

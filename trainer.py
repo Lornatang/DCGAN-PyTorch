@@ -55,7 +55,8 @@ class Trainer(object):
                                                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                        ]))
         elif args.dataset == "lsun":
-            dataset = torchvision.datasets.LSUN(root=args.dataroot, classes=["church_outdoor_train"],
+            classes = [c + "_train" for c in args.classes.split(",")]
+            dataset = torchvision.datasets.LSUN(root=args.dataroot, classes=classes,
                                                 transform=transforms.Compose([
                                                     transforms.Resize((args.image_size, args.image_size)),
                                                     transforms.CenterCrop(args.image_size),

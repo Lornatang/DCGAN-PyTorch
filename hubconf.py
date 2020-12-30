@@ -15,7 +15,7 @@
 """File for accessing GAN via PyTorch Hub https://pytorch.org/hub/
 Usage:
     import torch
-    model = torch.hub.load("Lornatang/DCAN-PyTorch", "cartoon", pretrained=True)
+    model = torch.hub.load("Lornatang/DCGAN-PyTorch", "cartoon", pretrained=True)
 """
 import torch
 from torch.hub import load_state_dict_from_url
@@ -23,8 +23,8 @@ from torch.hub import load_state_dict_from_url
 from dcgan_pytorch.models import Generator
 
 model_urls = {
-    "cifar10": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cifar10-30241ac8.pth",
-    "cartoon": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cartoon-c65fc503.pth"
+    "cifar10": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/cifar10-74658616.pth",
+    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/lsun-beaa67a6.pth"
 }
 
 dependencies = ["torch"]
@@ -58,11 +58,11 @@ def cifar10(pretrained: bool = False, progress: bool = True) -> Generator:
     return create("cifar10", pretrained, progress)
 
 
-def cartoon(pretrained: bool = False, progress: bool = True) -> Generator:
+def lsun(pretrained: bool = False, progress: bool = True) -> Generator:
     r"""GAN model architecture from the
     `"One weird trick..." <https://arxiv.org/abs/1511.06434>`_ paper.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    return create("cartoon", pretrained, progress)
+    return create("lsun", pretrained, progress)
