@@ -85,6 +85,9 @@ optional arguments:
 $ python3 test.py -a cifar10
 ```
 
+<span align="center"><img src="assets/mnist.gif" alt="">
+</span>
+
 ### Train (e.g. CIFAR10)
 
 ```text
