@@ -130,11 +130,14 @@ dmypy.json
 .DS_Store
 
 # custom
+data/MNIST
 data/cartoon
 data/bedroom*
+data/church_outdoor_train_lmdb
 data/cifar-10-python
 data/cifar-10-python.tar.gz
 data/cifar-10-batches-py
+_cache*
 
 output
 test
