@@ -47,7 +47,7 @@ class Trainer(object):
         # Selection of appropriate treatment equipment.
         if args.dataset in ["imagenet", "folder", "lfw"]:
             # folder dataset
-            dataset = torchvision.datasets.ImageFolder(root=args.dataroot,
+            dataset = torchvision.datasets.ImageFolder(root=args.data,
                                                        transform=transforms.Compose([
                                                            transforms.Resize((args.image_size, args.image_size)),
                                                            transforms.CenterCrop(args.image_size),
@@ -56,7 +56,7 @@ class Trainer(object):
                                                        ]))
         elif args.dataset == "lsun":
             classes = [c + "_train" for c in args.classes.split(",")]
-            dataset = torchvision.datasets.LSUN(root=args.dataroot, classes=classes,
+            dataset = torchvision.datasets.LSUN(root=args.data, classes=classes,
                                                 transform=transforms.Compose([
                                                     transforms.Resize((args.image_size, args.image_size)),
                                                     transforms.CenterCrop(args.image_size),
@@ -64,14 +64,14 @@ class Trainer(object):
                                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                 ]))
         elif args.dataset == "cifar10":
-            dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
+            dataset = torchvision.datasets.CIFAR10(root=args.data, download=True,
                                                    transform=transforms.Compose([
                                                        transforms.Resize((args.image_size, args.image_size)),
                                                        transforms.ToTensor(),
                                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                    ]))
         else:
-            dataset = torchvision.datasets.CIFAR10(root=args.dataroot, download=True,
+            dataset = torchvision.datasets.CIFAR10(root=args.data, download=True,
                                                    transform=transforms.Compose([
                                                        transforms.Resize((args.image_size, args.image_size)),
                                                        transforms.ToTensor(),
@@ -83,7 +83,7 @@ class Trainer(object):
                                                       num_workers=int(args.workers))
 
         logger.info(f"Train Dataset information:\n"
-                    f"\tTrain Dataset dir is `{os.getcwd()}/{args.dataroot}`\n"
+                    f"\tTrain Dataset dir is `{os.getcwd()}/{args.data}`\n"
                     f"\tBatch size is {args.batch_size}\n"
                     f"\tWorkers is {int(args.workers)}\n"
                     f"\tLoad dataset to CUDA")
@@ -181,18 +181,18 @@ class Trainer(object):
 
                 iters = i + epoch * len(self.dataloader) + 1
                 # The image is saved every 1000 epoch.
-                if iters % args.save_freq == 0:
+                if iters % 1000 == 0:
                     vutils.save_image(input,
-                                      os.path.join("output", "real_samples.bmp"),
+                                      os.path.join("output", "real_samples.png"),
                                       normalize=True)
                     fake = self.generator(fixed_noise)
                     vutils.save_image(fake.detach(),
-                                      os.path.join("output", f"fake_samples_{iters}.bmp"),
+                                      os.path.join("output", f"fake_samples_{iters}.png"),
                                       normalize=True)
 
                     # do checkpointing
-                    torch.save(self.generator.state_dict(), f"weights/netG_iter_{iters}.pth")
-                    torch.save(self.discriminator.state_dict(), f"weights/netD_iter_{iters}.pth")
+                    torch.save(self.generator.state_dict(), f"weights/{args.arch}_G_iter_{iters}.pth")
+                    torch.save(self.discriminator.state_dict(), f"weights/{args.arch}_D_iter_{iters}.pth")
 
                 if iters == int(args.iters):  # If the iteration is reached, exit.
                     break

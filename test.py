@@ -29,8 +29,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(format="[ %(levelname)s ] %(message)s", level=logging.INFO)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Research and application of GAN based super resolution "
-                                                 "technology for pathological microscopic images.")
+    parser = argparse.ArgumentParser(description="An implementation of DCGAN algorithm using PyTorch framework.")
     parser.add_argument("-a", "--arch", metavar="ARCH", default="cifar10",
                         choices=model_names,
                         help="model architecture: " +
@@ -57,14 +56,14 @@ if __name__ == "__main__":
 
     logger.info("Creating Testing Engine")
     device = select_device(args.device)
-    model = torch.hub.load("Lornatang/DCGAN-PyTorch", args.arch, pretrained=True)
+    model = torch.hub.load("Lornatang/DCGAN-PyTorch", args.arch, progress=True, pretrained=True, verbose=False)
     model = model.to(device)
 
     noise = torch.randn(args.num_images, 100, 1, 1, device=device)
     with torch.no_grad():
         generated_images = model(noise)
 
-    vutils.save_image(generated_images, f"{args.outf}/test.bmp", normalize=True)
+    vutils.save_image(generated_images, f"{args.outf}/test.png")
     print("##################################################\n")
 
     logger.info("Test completed successfully.\n")
