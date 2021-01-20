@@ -50,6 +50,8 @@ if __name__ == "__main__":
                         help="Learning rate. (default:0.0002)")
     parser.add_argument("--image-size", type=int, default=64,
                         help="The height / width of the input image to network. (default: 64).")
+    parser.add_argument("--classes", default="bedroom",
+                        help="comma separated list of classes for the lsun data set. (default: ``bedroom``).")
     parser.add_argument("--pretrained", dest="pretrained", action="store_true",
                         help="Use pre-trained model.")
     parser.add_argument("--netD", default="", type=str, metavar="PATH",

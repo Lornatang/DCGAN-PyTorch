@@ -21,18 +21,16 @@ Usage:
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # Load the model into the specified device.
-    model = torch.hub.load("Lornatang/DCGAN-PyTorch", "cifar10", pretrained=True, progress=True, verbose=False)
+    model = torch.hub.load("Lornatang/DCGAN-PyTorch", "lsun", pretrained=True, progress=True, verbose=False)
     model.eval()
     model = model.to(device)
 """
 import torch
+from gan_pytorch.models import Generator
 from torch.hub import load_state_dict_from_url
 
-from gan_pytorch.models import Generator
-
 model_urls = {
-    "cifar10": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_mnist-03265dde.pth",
-    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_tfd-4b754878.pth",
+    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_tfd-4b754878.pth"
 }
 
 dependencies = ["torch"]
@@ -56,16 +54,6 @@ def create(arch, pretrained, progress):
                                               map_location=torch.device("cpu"))
         model.load_state_dict(state_dict)
     return model
-
-
-def cifar10(pretrained: bool = False, progress: bool = True) -> Generator:
-    r"""GAN model architecture from the
-    `"One weird trick..." <https://arxiv.org/abs/1511.06434>`_ paper.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    return create("cifar10", pretrained, progress)
 
 
 def lsun(pretrained: bool = False, progress: bool = True) -> Generator:
