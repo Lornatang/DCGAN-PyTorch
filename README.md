@@ -12,10 +12,12 @@ of [Unsupervised Representation Learning with Deep Convolutional Generative Adve
 2. [Model Description](#model-description)
 3. [Installation](#installation)
     * [Clone and install requirements](#clone-and-install-requirements)
-    * [Download pretrained weights](#download-pretrained-weights-eg-cifar10)
+    * [Download pretrained weights](#download-pretrained-weights-eg-lsun)
     * [Download cartoon faces](#download-cartoon-faces)
 4. [Test](#test)
-5. [Train](#train-eg-cifar10)
+    * [Torch Hub call](#torch-hub-call)
+    * [Base call](#base-call)
+5. [Train](#train-eg-lsun)
 6. [Contributing](#contributing)
 7. [Credit](#credit)
 
@@ -49,7 +51,7 @@ $ cd DCGAN-PyTorch/
 $ pip3 install -r requirements.txt
 ```
 
-#### Download pretrained weights (e.g. CIFAR10)
+#### Download pretrained weights (e.g. LSUN)
 
 ```shell
 $ cd weights/
@@ -62,17 +64,46 @@ $ python3 download_weights.py
 
 ### Test
 
+#### Torch hub call
+
+```python
+# Using Torch Hub library.
+import torch
+import torchvision.utils as vutils
+
+# Choose to use the device.
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+# Load the model into the specified device.
+model = torch.hub.load("Lornatang/DCGAN-PyTorch", "lsun", pretrained=True, progress=True, verbose=False)
+model.eval()
+model = model.to(device)
+
+# Create random noise image.
+num_images = 64
+noise = torch.randn(num_images, 100, 1, 1, device=device)
+
+# The noise is input into the generator model to generate the image.
+with torch.no_grad():
+    generated_images = model(noise)
+
+# Save generate image.
+vutils.save_image(generated_images, "lsun.png", normalize=True)
+```
+
+#### Base call
+
 Using pre training model to generate pictures.
 
 ```text
 usage: test.py [-h] [-a ARCH] [-n NUM_IMAGES] [--outf PATH] [--device DEVICE]
 
-Research and application of GAN based super resolution technology for
-pathological microscopic images.
+An implementation of DCGAN algorithm using PyTorch framework.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a ARCH, --arch ARCH  model architecture: _gan | cifar10 (default: cifar10).
+  -a ARCH, --arch ARCH  model architecture: _gan | discriminator |
+                        load_state_dict_from_url | lsun (default: cifar10)
   -n NUM_IMAGES, --num-images NUM_IMAGES
                         How many samples are generated at one time. (default:
                         64).
@@ -81,64 +112,70 @@ optional arguments:
   --device DEVICE       device id i.e. `0` or `0,1` or `cpu`. (default:
                         ``cpu``).
 
-# Example (e.g. CIFAR10)
-$ python3 test.py -a cifar10
+# Example (e.g. LSUN)
+$ python3 test.py -a lsun --device cpu
 ```
 
 <span align="center"><img src="assets/mnist.gif" alt="">
 </span>
 
-### Train (e.g. CIFAR10)
+### Train (e.g. LSUN)
 
 ```text
-usage: train.py [-h] --dataset DATASET [--dataroot DATAROOT] [-j N]
-                [--manualSeed MANUALSEED] [--device DEVICE] [-p N] [-a ARCH]
-                [--model-path PATH] [--pretrained] [--netD PATH] [--netG PATH]
-                [--start-epoch N] [--iters N] [-b N] [--image-size IMAGE_SIZE]
-                [--channels CHANNELS] [--lr LR]
+usage: train.py [-h] --dataset DATASET [-a ARCH] [-j N] [--start-iter N]
+                [--iters N] [-b N] [--lr LR] [--image-size IMAGE_SIZE]
+                [--classes CLASSES] [--pretrained] [--netD PATH] [--netG PATH]
+                [--manualSeed MANUALSEED] [--device DEVICE]
+                DIR
 
-Research and application of GAN based super resolution technology for
-pathological microscopic images.
+An implementation of DCGAN algorithm using PyTorch framework.
+
+positional arguments:
+  DIR                   path to dataset
 
 optional arguments:
   -h, --help            show this help message and exit
-  --dataset DATASET     cifar10 | cartoon.
-  --dataroot DATAROOT   Path to dataset. (default: ``data``).
-  -j N, --workers N     Number of data loading workers. (default:4)
-  --manualSeed MANUALSEED
-                        Seed for initializing training. (default:1111)
-  --device DEVICE       device id i.e. `0` or `0,1` or `cpu`. (default: ````).
-  -p N, --save-freq N   Save frequency. (default: 50).
-  -a ARCH, --arch ARCH  model architecture: cifar10 | cartoon (default: mnist).
-  --model-path PATH     Path to latest checkpoint for model. (default: ````).
+  --dataset DATASET     | lsun |.
+  -a ARCH, --arch ARCH  model architecture: _gan | discriminator |
+                        load_state_dict_from_url | lsun (default: lsun)
+  -j N, --workers N     Number of data loading workers. (default:8)
+  --start-iter N        manual iter number (useful on restarts)
+  --iters N             The number of iterations is needed in the training of
+                        model. (default: 50000)
+  -b N, --batch-size N  mini-batch size (default: 64), this is the total batch
+                        size of all GPUs on the current node when using Data
+                        Parallel or Distributed Data Parallel.
+  --lr LR               Learning rate. (default:0.0002)
+  --image-size IMAGE_SIZE
+                        The height / width of the input image to network.
+                        (default: 64).
+  --classes CLASSES     comma separated list of classes for the lsun data set.
+                        (default: ``bedroom``).
   --pretrained          Use pre-trained model.
   --netD PATH           Path to latest discriminator checkpoint. (default:
                         ````).
   --netG PATH           Path to latest generator checkpoint. (default: ````).
-  --start-epoch N       manual epoch number (useful on restarts)
-  --iters N             The number of iterations is needed in the training of
-                        PSNR model. (default: 2e4)
-  -b N, --batch-size N  mini-batch size (default: 64), this is the total batch
-                        size of all GPUs on the current node when using Data
-                        Parallel or Distributed Data Parallel.
-  --image-size IMAGE_SIZE
-                        The height / width of the input image to network.
-                        (default: 64).
-  --lr LR               Learning rate. (default:2e-4)
+  --manualSeed MANUALSEED
+                        Seed for initializing training. (default:1111)
+  --device DEVICE       device id i.e. `0` or `0,1` or `cpu`. (default:
+                        ``0``).
+
 
 # Example (e.g. CIFAR10)
-$ python3 train.py -a cifar10 --dataset cifar10 --image-size 64 --pretrained
+$ python3 train.py data -a lsun --dataset lsun --image-size 64 --classes bedroom --pretrained --device 0
 ```
 
 If you want to load weights that you've trained before, run the following command.
 
 ```bash
-$ python3 train.py -a cifar10 \
-                   --dataset cifar10 \
+$ python3 train.py data \
+                   -a lsun \
+                   --dataset lsun \
                    --image-size 64 \
-                   --start-epoch 18 \
-                   --netG weights/netG_epoch_18.pth \
-                   --netD weights/netD_epoch_18.pth
+                   --classes bedroom \
+                   --start-iter 10000 \
+                   --netG weights/lsun_G_iter_10000.pth \
+                   --netD weights/lsun_D_iter_10000.pth
 ```
 
 ### Contributing

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-from dcgan_pytorch.models import cifar10
+from dcgan_pytorch.models import lsun
 
-model = cifar10(pretrained=True)
+model = lsun(pretrained=True)
 print(model)

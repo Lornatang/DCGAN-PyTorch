@@ -30,7 +30,7 @@ from gan_pytorch.models import Generator
 from torch.hub import load_state_dict_from_url
 
 model_urls = {
-    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_tfd-4b754878.pth"
+    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_lsun-ada40795.pth"
 }
 
 dependencies = ["torch"]

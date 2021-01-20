@@ -30,12 +30,12 @@ if __name__ == "__main__":
     parser.add_argument("data", metavar="DIR",
                         help="path to dataset")
     parser.add_argument("--dataset", type=str, required=True,
-                        help="cifar10 | lsun |.")
-    parser.add_argument("-a", "--arch", metavar="ARCH", default="cifar10",
+                        help="| lsun |.")
+    parser.add_argument("-a", "--arch", metavar="ARCH", default="lsun",
                         choices=model_names,
                         help="model architecture: " +
                              " | ".join(model_names) +
-                             " (default: cifar10)")
+                             " (default: lsun)")
     parser.add_argument("-j", "--workers", default=8, type=int, metavar="N",
                         help="Number of data loading workers. (default:8)")
     parser.add_argument("--start-iter", default=0, type=int, metavar="N",

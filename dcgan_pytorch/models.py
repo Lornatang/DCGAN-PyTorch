@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 model_urls = {
-    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/lsun-beaa67a6.pth"
+    "lsun": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/0.1.0/DCGAN_lsun-ada40795.pth"
 }
 
 
