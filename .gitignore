@@ -146,3 +146,5 @@ test
 *.png
 *.bmp
 *.pth
+
+_cache_datachurchoutdoortrainlmdb
