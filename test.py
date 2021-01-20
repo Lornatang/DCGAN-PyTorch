@@ -30,11 +30,11 @@ logging.basicConfig(format="[ %(levelname)s ] %(message)s", level=logging.INFO)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="An implementation of DCGAN algorithm using PyTorch framework.")
-    parser.add_argument("-a", "--arch", metavar="ARCH", default="cifar10",
+    parser.add_argument("-a", "--arch", metavar="ARCH", default="lsun",
                         choices=model_names,
                         help="model architecture: " +
                              " | ".join(model_names) +
-                             " (default: cifar10)")
+                             " (default: lsun)")
     parser.add_argument("-n", "--num-images", type=int, default=64,
                         help="How many samples are generated at one time. (default: 64).")
     parser.add_argument("--outf", default="test", type=str, metavar="PATH",
