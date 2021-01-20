@@ -26,7 +26,7 @@ Usage:
     model = model.to(device)
 """
 import torch
-from gan_pytorch.models import Generator
+from dcgan_pytorch.models import Generator
 from torch.hub import load_state_dict_from_url
 
 model_urls = {
