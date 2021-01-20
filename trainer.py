@@ -128,6 +128,9 @@ class Trainer(object):
         if args.netG != "":
             self.generator.load_state_dict(torch.load(args.netG))
 
+        self.discriminator.train()
+        self.generator.train()
+
         # Start train PSNR model.
         logger.info(f"Training for {self.epochs} epochs")
 
