@@ -191,7 +191,7 @@ def main_worker(gpu, ngpus_per_node, args):
     # Loss of original GAN paper.
     adversarial_criterion = nn.BCELoss().cuda(args.gpu)
 
-    base_image = torch.randn(args.batch_size, 100, 1, 1)
+    base_image = torch.randn([args.batch_size, 100, 1, 1])
     if args.gpu is not None:
         base_image = base_image.cuda(args.gpu)
 
@@ -259,7 +259,7 @@ def main_worker(gpu, ngpus_per_node, args):
             real_label = torch.full((batch_size, 1), 1, dtype=inputs.dtype).cuda(args.gpu, non_blocking=True)
             fake_label = torch.full((batch_size, 1), 0, dtype=inputs.dtype).cuda(args.gpu, non_blocking=True)
 
-            noise = torch.randn(batch_size, 100, 1, 1)
+            noise = torch.randn([batch_size, 100, 1, 1])
             # Move data to special device.
             if args.gpu is not None:
                 noise = noise.cuda(args.gpu, non_blocking=True)

@@ -82,7 +82,7 @@ if __name__ == "__main__":
                         help="Path to latest checkpoint for model.")
     parser.add_argument("--pretrained", dest="pretrained", action="store_true",
                         help="Use pre-trained model.")
-    parser.add_argument("--seed", default=None, type=int,
+    parser.add_argument("--seed", default=None,
                         help="Seed for initializing training.")
     parser.add_argument("--gpu", default=None, type=int,
                         help="GPU id to use.")
