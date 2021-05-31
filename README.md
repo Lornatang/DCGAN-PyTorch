@@ -12,12 +12,12 @@ of [Unsupervised Representation Learning with Deep Convolutional Generative Adve
 2. [Model Description](#model-description)
 3. [Installation](#installation)
     * [Clone and install requirements](#clone-and-install-requirements)
-    * [Download pretrained weights](#download-pretrained-weights-eg-lsun)
+    * [Download pretrained weights](#download-pretrained-weights-eg-imagenet)
     * [Download cartoon faces](#download-cartoon-faces)
 4. [Test](#test)
     * [Torch Hub call](#torch-hub-call)
     * [Base call](#base-call)
-5. [Train](#train-eg-lsun)
+5. [Train](#train-eg-imagenet)
 6. [Contributing](#contributing)
 7. [Credit](#credit)
 
@@ -25,21 +25,19 @@ of [Unsupervised Representation Learning with Deep Convolutional Generative Adve
 
 If you're new to DCGAN, here's an abstract straight from the paper:
 
-In recent years, supervised learning with convolutional networks (CNNs) has seen huge adoption in computer vision
-applications. Comparatively, unsupervised learning with CNNs has received less attention. In this work we hope to help
-bridge the gap between the success of CNNs for supervised learning and unsupervised learning. We introduce a class of
-CNNs called deep convolutional generative adversarial networks (DCGANs), that have certain architectural constraints,
-and demonstrate that they are a strong candidate for unsupervised learning. Training on various image datasets, we show
-convincing evidence that our deep convolutional adversarial pair learns a hierarchy of representations from object parts
-to scenes in both the generator and discriminator. Additionally, we use the learned features for novel tasks -
-demonstrating their applicability as general image representations.
+In recent years, supervised learning with convolutional networks (CNNs) has seen huge adoption in computer vision applications. Comparatively,
+unsupervised learning with CNNs has received less attention. In this work we hope to help bridge the gap between the success of CNNs for supervised
+learning and unsupervised learning. We introduce a class of CNNs called deep convolutional generative adversarial networks (DCGANs), that have certain
+architectural constraints, and demonstrate that they are a strong candidate for unsupervised learning. Training on various image datasets, we show
+convincing evidence that our deep convolutional adversarial pair learns a hierarchy of representations from object parts to scenes in both the
+generator and discriminator. Additionally, we use the learned features for novel tasks - demonstrating their applicability as general image
+representations.
 
 ### Model Description
 
-We have two networks, G (Generator) and D (Discriminator).The Generator is a network for generating images. It receives
-a random noise z and generates images from this noise, which is called G(z).Discriminator is a discriminant network that
-discriminates whether an image is real. The input is x, x is a picture, and the output is D of x is the probability that
-x is a real picture, and if it's 1, it's 100% real, and if it's 0, it's not real.
+We have two networks, G (Generator) and D (Discriminator).The Generator is a network for generating images. It receives a random noise z and generates
+images from this noise, which is called G(z).Discriminator is a discriminant network that discriminates whether an image is real. The input is x, x is
+a picture, and the output is D of x is the probability that x is a real picture, and if it's 1, it's 100% real, and if it's 0, it's not real.
 
 ### Installation
 
@@ -51,7 +49,7 @@ $ cd DCGAN-PyTorch/
 $ pip3 install -r requirements.txt
 ```
 
-#### Download pretrained weights (e.g. LSUN)
+#### Download pretrained weights (e.g. ImageNet)
 
 ```shell
 $ cd weights/
@@ -60,7 +58,7 @@ $ python3 download_weights.py
 
 #### Download cartoon faces
 
-[baiduclouddisk](https://pan.baidu.com/s/1nawrN1Kiw3Z2Jk1NgJqZTQ)  access: `68rn`
+[baidu cloud disk](https://pan.baidu.com/s/1nawrN1Kiw3Z2Jk1NgJqZTQ)  access: `68rn`
 
 ### Test
 
@@ -75,114 +73,92 @@ import torchvision.utils as vutils
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 # Load the model into the specified device.
-model = torch.hub.load("Lornatang/DCGAN-PyTorch", "lsun", pretrained=True, progress=True, verbose=False)
+model = torch.hub.load("Lornatang/DCGAN-PyTorch", "dcgan", pretrained=True, progress=True, verbose=False)
 model.eval()
 model = model.to(device)
 
 # Create random noise image.
 num_images = 64
-noise = torch.randn(num_images, 100, 1, 1, device=device)
+noise = torch.randn([num_images, 100, 1, 1], device=device)
 
 # The noise is input into the generator model to generate the image.
 with torch.no_grad():
     generated_images = model(noise)
 
 # Save generate image.
-vutils.save_image(generated_images, "lsun.png", normalize=True)
+vutils.save_image(generated_images, "image.png", normalize=True)
 ```
 
 #### Base call
 
-Using pre training model to generate pictures.
-
 ```text
-usage: test.py [-h] [-a ARCH] [-n NUM_IMAGES] [--outf PATH] [--device DEVICE]
-
-An implementation of DCGAN algorithm using PyTorch framework.
+usage: test.py [-h] [-a ARCH] [--num-images NUM_IMAGES] [--model-path PATH] [--pretrained] [--seed SEED] [--gpu GPU]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a ARCH, --arch ARCH  model architecture: _gan | discriminator |
-                        load_state_dict_from_url | lsun (default: cifar10)
-  -n NUM_IMAGES, --num-images NUM_IMAGES
-                        How many samples are generated at one time. (default:
-                        64).
-  --outf PATH           The location of the image in the evaluation process.
-                        (default: ``test``).
-  --device DEVICE       device id i.e. `0` or `0,1` or `cpu`. (default:
-                        ``cpu``).
+  -a ARCH, --arch ARCH  model architecture: dcgan. (Default: `dcgan`)
+  --num-images NUM_IMAGES
+                        How many samples are generated at one time. (Default: 64)
+  --model-path PATH     Path to latest checkpoint for model.
+  --pretrained          Use pre-trained model.
+  --seed SEED           Seed for initializing training.
+  --gpu GPU             GPU id to use.
 
-# Example (e.g. LSUN)
-$ python3 test.py -a lsun --device cpu
+# Example (e.g. ImageNet)
+$ python3 test.py -a dcgan --pretrained --gpu 0 
 ```
 
 <span align="center"><img src="assets/mnist.gif" alt="">
 </span>
 
-### Train (e.g. LSUN)
+### Train (e.g. ImageNet)
 
 ```text
-usage: train.py [-h] --dataset DATASET [-a ARCH] [-j N] [--start-iter N]
-                [--iters N] [-b N] [--lr LR] [--image-size IMAGE_SIZE]
-                [--classes CLASSES] [--pretrained] [--netD PATH] [--netG PATH]
-                [--manualSeed MANUALSEED] [--device DEVICE]
+usage: train.py [-h] [-a ARCH] [-j N] [--epochs N] [--start-epoch N] [-b N] [--lr LR] [--image-size IMAGE_SIZE] [--channels CHANNELS] [--netD PATH] [--netG PATH] [--pretrained] [--world-size WORLD_SIZE] [--rank RANK] [--dist-url DIST_URL]
+                [--dist-backend DIST_BACKEND] [--seed SEED] [--gpu GPU] [--multiprocessing-distributed]
                 DIR
 
-An implementation of DCGAN algorithm using PyTorch framework.
-
 positional arguments:
-  DIR                   path to dataset
+  DIR                   Path to dataset.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --dataset DATASET     | lsun |.
-  -a ARCH, --arch ARCH  model architecture: _gan | discriminator |
-                        load_state_dict_from_url | lsun (default: lsun)
-  -j N, --workers N     Number of data loading workers. (default:8)
-  --start-iter N        manual iter number (useful on restarts)
-  --iters N             The number of iterations is needed in the training of
-                        model. (default: 50000)
-  -b N, --batch-size N  mini-batch size (default: 64), this is the total batch
-                        size of all GPUs on the current node when using Data
-                        Parallel or Distributed Data Parallel.
-  --lr LR               Learning rate. (default:0.0002)
+  -a ARCH, --arch ARCH  Model architecture: gan. (Default: gan)
+  -j N, --workers N     Number of data loading workers. (Default: 4)
+  --epochs N            Number of total epochs to run. (Default: 128)
+  --start-epoch N       Manual epoch number (useful on restarts). (Default: 0)
+  -b N, --batch-size N  Mini-batch size (default: 64), this is the total batch size of all GPUs on the current node when using Data Parallel or Distributed Data Parallel.
+  --lr LR               Learning rate. (Default: 0.0002)
   --image-size IMAGE_SIZE
-                        The height / width of the input image to network.
-                        (default: 64).
-  --classes CLASSES     comma separated list of classes for the lsun data set.
-                        (default: ``bedroom``).
+                        Image size of high resolution image. (Default: 28)
+  --channels CHANNELS   The number of channels of the image. (Default: 1)
+  --netD PATH           Path to Discriminator checkpoint.
+  --netG PATH           Path to Generator checkpoint.
   --pretrained          Use pre-trained model.
-  --netD PATH           Path to latest discriminator checkpoint. (default:
-                        ````).
-  --netG PATH           Path to latest generator checkpoint. (default: ````).
-  --manualSeed MANUALSEED
-                        Seed for initializing training. (default:1111)
-  --device DEVICE       device id i.e. `0` or `0,1` or `cpu`. (default:
-                        ``0``).
+  --world-size WORLD_SIZE
+                        Number of nodes for distributed training.
+  --rank RANK           Node rank for distributed training. (Default: -1)
+  --dist-url DIST_URL   url used to set up distributed training. (Default: `tcp://59.110.31.55:12345`)
+  --dist-backend DIST_BACKEND
+                        Distributed backend. (Default: `nccl`)
+  --seed SEED           Seed for initializing training.
+  --gpu GPU             GPU id to use.
+  --multiprocessing-distributed
+                        Use multi-processing distributed training to launch N processes per node, which has N GPUs. This is the fastest way to use PyTorch for either single node or multi node data parallel training.
 
-
-# Example (e.g. CIFAR10)
-$ python3 train.py data -a lsun --dataset lsun --image-size 64 --classes bedroom --pretrained --device 0
+# Example (e.g. ImageNet)
+$ python3 train.py -a dcgan --gpu 0 data
 ```
 
 If you want to load weights that you've trained before, run the following command.
 
 ```bash
-$ python3 train.py data \
-                   -a lsun \
-                   --dataset lsun \
-                   --image-size 64 \
-                   --classes bedroom \
-                   --start-iter 10000 \
-                   --netG weights/lsun_G_iter_10000.pth \
-                   --netD weights/lsun_D_iter_10000.pth
+$ python3 train.py -a dcgan --netD weights/Discriminator_epoch8.pth --netG weights/Generator_epoch8.pth --start-epoch 8 --gpu 0 data
 ```
 
 ### Contributing
 
-If you find a bug, create a GitHub issue, or even better, submit a pull request. Similarly, if you have questions,
-simply post them as GitHub issues.
-
+If you find a bug, create a GitHub issue, or even better, submit a pull request. Similarly, if you have questions, simply post them as GitHub issues.
 I look forward to seeing what the community does with these models!
 
 ### Credit
@@ -193,13 +169,12 @@ _Alec Radford, Luke Metz, Soumith Chintala_ <br>
 
 **Abstract** <br>
 In recent years, supervised learning with convolutional networks (CNNs)
-has seen huge adoption in computer vision applications. Comparatively, unsupervised learning with CNNs has received less
-attention. In this work we hope to help bridge the gap between the success of CNNs for supervised learning and
-unsupervised learning. We introduce a class of CNNs called deep convolutional generative adversarial networks (DCGANs),
-that have certain architectural constraints, and demonstrate that they are a strong candidate for unsupervised learning.
-Training on various image datasets, we show convincing evidence that our deep convolutional adversarial pair learns a
-hierarchy of representations from object parts to scenes in both the generator and discriminator. Additionally, we use
-the learned features for novel tasks - demonstrating their applicability as general image representations.
+has seen huge adoption in computer vision applications. Comparatively, unsupervised learning with CNNs has received less attention. In this work we
+hope to help bridge the gap between the success of CNNs for supervised learning and unsupervised learning. We introduce a class of CNNs called deep
+convolutional generative adversarial networks (DCGANs), that have certain architectural constraints, and demonstrate that they are a strong candidate
+for unsupervised learning. Training on various image datasets, we show convincing evidence that our deep convolutional adversarial pair learns a
+hierarchy of representations from object parts to scenes in both the generator and discriminator. Additionally, we use the learned features for novel
+tasks - demonstrating their applicability as general image representations.
 
 [[Paper]](https://arxiv.org/abs/1511.06434)) [[Authors' Implementation]](https://github.com/Newmu/dcgan_code)
 

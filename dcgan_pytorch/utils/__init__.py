@@ -11,7 +11,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-from dcgan_pytorch.models import dcgan
-
-model = dcgan(pretrained=True)
-print(model)
+from .common import *
+from .transform import *
