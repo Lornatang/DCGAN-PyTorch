@@ -21,7 +21,7 @@ from dcgan_pytorch.models.generator import Generator
 from torch.hub import load_state_dict_from_url
 
 model_urls = {
-    "dcgan": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/v0.2.0/DCGAN_lsun-ada40795.pth"
+    "dcgan": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/v0.2.0/DCGAN_ImageNet-ceb59029f50cffed2c84b87b0e644f6399d1252148e3f7c7fc3f901696f0739e.pth",
 }
 
 dependencies = ["torch"]

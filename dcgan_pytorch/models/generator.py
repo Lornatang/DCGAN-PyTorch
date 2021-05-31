@@ -16,7 +16,7 @@ import torch.nn as nn
 from torch.hub import load_state_dict_from_url
 
 model_urls = {
-    "dcgan": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/v0.2.0/DCGAN_ImageNet-5c625d6ee2e8b3550f20080336ae81d7a2a8af93ea780a849d5b1dd4c428b133.pth",
+    "dcgan": "https://github.com/Lornatang/DCGAN-PyTorch/releases/download/v0.2.0/DCGAN_ImageNet-ceb59029f50cffed2c84b87b0e644f6399d1252148e3f7c7fc3f901696f0739e.pth",
 }
 
 
