@@ -15,6 +15,7 @@ import argparse
 import logging
 import os
 import random
+import warnings
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -33,9 +34,19 @@ logging.basicConfig(format="[ %(levelname)s ] %(message)s", level=logging.INFO)
 
 
 def main(args):
-    # In order to make the model repeatable, the first step is to set random seeds, and the second step is to set convolution algorithm.
-    random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    if args.seed is not None:
+        # In order to make the model repeatable, the first step is to set random seeds, and the second step is to set convolution algorithm.
+        random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        warnings.warn("You have chosen to seed training. "
+                      "This will turn on the CUDNN deterministic setting, "
+                      "which can slow down your training considerably! "
+                      "You may see unexpected behavior when restarting "
+                      "from checkpoints.")
+        # for the current configuration, so as to optimize the operation efficiency.
+        cudnn.benchmark = True
+        # Ensure that every time the same input returns the same result.
+        cudnn.deterministic = True
 
     # Build a super-resolution model, if model_ If path is defined, the specified model weight will be loaded.
     model = configure(args)
