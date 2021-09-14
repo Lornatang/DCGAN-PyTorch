@@ -93,9 +93,10 @@ class Generator(nn.Module):
     def _initialize_weights(self) -> None:
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                torch.nn.init.normal_(m.weight, 0.0, 0.02)
+                nn.init.normal_(m.weight, 0.0, 0.02)
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.BatchNorm2d):
-                torch.nn.init.normal_(m.weight, 1.0, 0.02)
-                torch.nn.init.zeros_(m.bias)
+                nn.init.normal_(m.weight, 1.0, 0.02)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
