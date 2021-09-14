@@ -28,8 +28,8 @@ class Discriminator(nn.Module):
     def __init__(self) -> None:
         super(Discriminator, self).__init__()
         self.main = nn.Sequential(
-            # Input is 3 x 64 x 64
-            nn.Conv2d(3, 64, (4, 4), (2, 2), (1, 1), bias=True),
+            # Input is 1 x 64 x 64
+            nn.Conv2d(1, 64, (4, 4), (2, 2), (1, 1), bias=True),
             nn.LeakyReLU(0.2, True),
             # State size. 64 x 32 x 32
             nn.Conv2d(64, 128, (4, 4), (2, 2), (1, 1), bias=False),
@@ -76,9 +76,9 @@ class Generator(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(True),
             # state size. 64 x 32 x 32
-            nn.ConvTranspose2d(64, 3, (4, 4), (2, 2), (1, 1), bias=True),
+            nn.ConvTranspose2d(64, 1, (4, 4), (2, 2), (1, 1), bias=True),
             nn.Tanh()
-            # state size. 3 x 64 x 64
+            # state size. 1 x 64 x 64
         )
 
     def forward(self, x: Tensor) -> Tensor:
